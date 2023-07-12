@@ -1,0 +1,59 @@
+name: alcohol_inventory
+description: Alcohol Inventory
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.3 <4.0.0"
+
+dependencies:
+  app_bar_with_search_switch: ^1.5.1
+  awesome_dialog: ^3.1.0
+  cached_network_image: any
+  carousel_slider: ^4.2.1
+  cupertino_icons: ^1.0.2
+  flashy_tab_bar2: ^0.0.6
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.7
+  google_fonts: any
+  intl: ^0.18.1
+  string_validator: ^1.0.0
+  timeago: ^3.4.0
+  url_launcher: ^6.1.11
+  webview_flutter: ^4.2.2
+
+dev_dependencies:
+  flutter_launcher_icons: any
+  flutter_lints: ^2.0.0
+  flutter_native_splash: any
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logo/
+    - assets/banners/
+    - assets/images/
+    - assets/svg/
+
+flutter_native_splash:
+  image: assets/logo/splash.png
+  color: "#ffffff"
+  android_12:
+    image: assets/logo/app_logo_transparent.png
+    color: "#ffffff"
+  web_image_mode: cover
+  android_gravity: fill
+  ios_content_mode: scaleToFill
+# flutter pub run flutter_native_splash:create
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/logo/logo_android.png"
+  adaptive_icon_background: "#ffffff"
+# flutter pub run flutter_launcher_icons:main
