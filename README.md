@@ -1,16 +1,10 @@
-# alcohol_inventory
+# LiquorLens
 
-A new Flutter project.
+Alcohol Inventory App
 
-## Getting Started
+### Screens
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+https://github.com/IamAKX/liqourlens/assets/17857031/ce548043-4075-4b97-ae08-72f7fc5ddbfe
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
