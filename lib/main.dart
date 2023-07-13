@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Alcohol Inventory',
+      title: 'LiquorLens',
       theme: globalTheme(context),
       home: const LoginScreen(),
       navigatorKey: navigatorKey,

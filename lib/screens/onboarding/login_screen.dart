@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: const EdgeInsets.all(defaultPadding),
           child: Text(
-            '© ${DateTime.now().year} Alcohol Inventory',
+            '© ${DateTime.now().year} LiquorLens',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: primaryColor,
                 ),

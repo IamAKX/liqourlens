@@ -1,5 +1,5 @@
 name: alcohol_inventory
-description: Alcohol Inventory
+description: LiquorLens
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
@@ -42,10 +42,10 @@ flutter:
 
 flutter_native_splash:
   image: assets/logo/splash.png
-  color: "#ffffff"
+  color: "#0B4F86"
   android_12:
-    image: assets/logo/app_logo_transparent.png
-    color: "#ffffff"
+    image: assets/images/play_store_512.png
+    color: "#0B4F86"
   web_image_mode: cover
   android_gravity: fill
   ios_content_mode: scaleToFill
@@ -54,6 +54,6 @@ flutter_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/logo/logo_android.png"
-  adaptive_icon_background: "#ffffff"
+  image_path: "assets/images/play_store_512.png"
+  adaptive_icon_background: "#0B4F86"
 # flutter pub run flutter_launcher_icons:main

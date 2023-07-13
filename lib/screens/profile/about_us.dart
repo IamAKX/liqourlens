@@ -25,8 +25,8 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   getBody(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(defaultPadding),
-      children: [
-        const Text(
+      children: const [
+        Text(
             'About Us details goes here. Need to check from Mikey regarding this')
       ],
     );

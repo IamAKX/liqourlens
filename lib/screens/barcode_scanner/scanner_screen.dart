@@ -17,8 +17,28 @@ class ScannerScreen extends StatefulWidget {
 
 class _ScannerScreenState extends State<ScannerScreen> {
   final TextEditingController _qtyCtrl = TextEditingController();
-  int qty = 0;
+  double qty = 0.0;
   bool showScanner = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _qtyCtrl.text = qty.toString();
+
+    _qtyCtrl.addListener(() {
+      if (_qtyCtrl.text.isNotEmpty) {
+        try {
+          double val = double.parse(_qtyCtrl.text);
+          setState(() {
+            qty = val;
+          });
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +50,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   showBody(BuildContext context) {
-    _qtyCtrl.text = qty.toString();
     return ListView(
       padding: const EdgeInsets.all(defaultPadding),
       children: [
@@ -78,7 +97,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       getItemDetailRow(
                           context, 'DESCRIPTION', "TITOS VODKA 1 L"),
                       verticalGap(defaultPadding / 2),
-                      getItemDetailRow(context, 'BRAND', "Tito's")
+                      getItemDetailRow(context, 'BRAND', "Tito's"),
+                      verticalGap(defaultPadding / 2),
+                      getItemDetailRow(context, 'QUANTITY', "47")
                     ],
                   ),
                 ),
@@ -120,10 +141,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        if (qty == 0) return;
-                        qty--;
+                        qty -= 0.5;
                         setState(() {
                           _qtyCtrl.text = qty.toString();
+                          _qtyCtrl.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _qtyCtrl.text.length));
                         });
                       },
                       child: decrementButton(context),
@@ -138,16 +160,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         textAlignVertical: TextAlignVertical.center,
                         maxLines: 1,
                         textInputAction: TextInputAction.done,
-                        onEditingComplete: () {
-                          if (_qtyCtrl.text.isNotEmpty) {
-                            try {
-                              int val = int.parse(_qtyCtrl.text);
-                              setState(() {
-                                qty = val;
-                              });
-                            } catch (e) {}
-                          }
-                        },
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
@@ -156,9 +168,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        qty++;
+                        qty += 0.5;
                         setState(() {
                           _qtyCtrl.text = qty.toString();
+                          _qtyCtrl.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _qtyCtrl.text.length));
                         });
                       },
                       child: incrementButton(context),
