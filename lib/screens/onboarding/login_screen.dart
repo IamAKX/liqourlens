@@ -4,7 +4,10 @@ import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/widgets/input_field.dart';
 import 'package:alcohol_inventory/widgets/input_password_field.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/auth_provider.dart';
+import '../../services/snackbar_service.dart';
 import '../../utils/theme.dart';
 import '../../widgets/gaps.dart';
 import '../../widgets/primary_button.dart';
@@ -21,9 +24,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
+  late AuthProvider _auth;
 
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _auth = Provider.of<AuthProvider>(context);
     return Scaffold(
       body: getBody(context),
     );
@@ -64,16 +70,23 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               verticalGap(defaultPadding * 2),
               PrimaryButton(
-                onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    HomeContainer.routePath,
-                    (route) => false,
-                  );
+                onPressed: () async {
+                  _auth
+                      .loginUserWithEmailAndPassword(
+                          _emailCtrl.text, _passwordCtrl.text)
+                      .then((value) {
+                    if (_auth.status == AuthStatus.authenticated) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        HomeContainer.routePath,
+                        (route) => false,
+                      );
+                    }
+                  });
                 },
                 label: 'Login',
-                isDisabled: false,
-                isLoading: false,
+                isDisabled: _auth.status == AuthStatus.authenticating,
+                isLoading: _auth.status == AuthStatus.authenticating,
               ),
               verticalGap(defaultPadding),
               Row(

@@ -1,5 +1,6 @@
 import 'package:alcohol_inventory/dummy/dummy_item.dart';
 import 'package:alcohol_inventory/models/unit_model.dart';
+import 'package:alcohol_inventory/models/user_profile.dart';
 import 'package:alcohol_inventory/screens/dashboard/search_box.dart';
 import 'package:alcohol_inventory/screens/inventory/history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/removed_history_screen.dart';
@@ -9,7 +10,10 @@ import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/auth_provider.dart';
+import '../../services/snackbar_service.dart';
 import 'header_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -22,13 +26,21 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
+  late AuthProvider _auth;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: backgroundDark,
       appBar: AppBar(
-        title: const Text('Hello Marcell👋🏻'),
+        title: Text('Hello ${_auth.user?.displayName?.split(' ')[0]}👋🏻'),
         actions: [
           IconButton(
             onPressed: () {

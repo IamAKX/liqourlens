@@ -1,3 +1,4 @@
+import 'package:alcohol_inventory/screens/onboarding/register_screen.dart';
 import 'package:alcohol_inventory/widgets/input_field.dart';
 import 'package:alcohol_inventory/widgets/input_password_field.dart';
 import 'package:flutter/gestures.dart';
@@ -9,24 +10,22 @@ import '../../widgets/gaps.dart';
 import 'agreement_screen.dart';
 
 class UserDetail extends StatefulWidget {
-  const UserDetail(
-      {super.key,
-      required this.emailCtrl,
-      required this.passwordCtrl,
-      required this.phoneCtrl,
-      required this.nameCtrl});
+  UserDetail({
+    super.key,
+    required this.emailCtrl,
+    required this.passwordCtrl,
+    required this.phoneCtrl,
+    required this.nameCtrl,
+  });
   final TextEditingController emailCtrl;
   final TextEditingController passwordCtrl;
   final TextEditingController phoneCtrl;
   final TextEditingController nameCtrl;
-
   @override
   State<UserDetail> createState() => _UserDetailState();
 }
 
 class _UserDetailState extends State<UserDetail> {
-  bool isAgreementChecked = false;
-
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -66,10 +65,10 @@ class _UserDetailState extends State<UserDetail> {
             Checkbox(
               // activeColor: Colors.white,
               // checkColor: primaryColor,
-              value: isAgreementChecked,
+              value: RegisterScreen.isAgree,
               onChanged: (value) {
                 setState(() {
-                  isAgreementChecked = !isAgreementChecked;
+                  RegisterScreen.isAgree = !RegisterScreen.isAgree;
                 });
               },
             ),

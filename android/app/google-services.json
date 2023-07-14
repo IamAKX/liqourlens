@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "432310880033",
+    "firebase_url": "https://liquor-lens-default-rtdb.firebaseio.com",
+    "project_id": "liquor-lens",
+    "storage_bucket": "liquor-lens.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432310880033:android:92463902f92ed3d1082060",
+        "android_client_info": {
+          "package_name": "com.mikeyflorsheim.alcohol_inventory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "432310880033-7anu2n2m66ktmcrcn9srm3o5te7vdumf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP4M3ysotzuNV-vlNnE3gs2qmCBCVlmPw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "432310880033-7anu2n2m66ktmcrcn9srm3o5te7vdumf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

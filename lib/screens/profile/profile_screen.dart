@@ -7,6 +7,10 @@ import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../services/auth_provider.dart';
+import '../../services/snackbar_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,8 +21,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late AuthProvider _auth;
+
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
@@ -65,8 +74,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               itemBuilder: (context, index) => ListTile(
                     onTap: () {
                       if (index == menuItems.length - 1) {
-                        Navigator.pushNamedAndRemoveUntil(context,
-                            menuItems.elementAt(index).path, (route) => false);
+                        _auth.logoutUser().then((value) =>
+                            Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                menuItems.elementAt(index).path,
+                                (route) => false));
                       } else {
                         Navigator.pushNamed(
                             context, menuItems.elementAt(index).path);
@@ -161,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           verticalGap(defaultPadding / 2),
           Text(
-            'Hello Marcell👋🏻',
+            'Hello ${_auth.user?.displayName?.split(' ')[0]}👋🏻',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                 ),
