@@ -1,7 +1,12 @@
+import 'package:alcohol_inventory/models/user_profile.dart';
+import 'package:alcohol_inventory/services/firestore_service.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/auth_provider.dart';
+import '../../services/snackbar_service.dart';
 import '../../widgets/gaps.dart';
 import '../../widgets/input_field.dart';
 
@@ -18,9 +23,24 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _businessName = TextEditingController();
   final TextEditingController _businessAddress = TextEditingController();
+  late FirestoreProvider _firestore;
+  late AuthProvider _auth;
+  UserProfile? userProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => loadScreen(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _firestore = Provider.of<FirestoreProvider>(context);
+    _auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -68,12 +88,42 @@ class _EditProfileState extends State<EditProfile> {
         ),
         verticalGap(defaultPadding * 2),
         PrimaryButton(
-          onPressed: () {},
+          onPressed: () async {
+            if (_name.text.isEmpty ||
+                _phone.text.isEmpty ||
+                _businessName.text.isEmpty ||
+                _businessAddress.text.isEmpty) {
+              SnackBarService.instance
+                  .showSnackBarError('All fields are mandatory');
+              return;
+            }
+            userProfile?.name = _name.text;
+            userProfile?.phone = _phone.text;
+            userProfile?.businessAddress = _businessAddress.text;
+            userProfile?.businessName = _businessName.text;
+            await _firestore.updateUser(userProfile!).then((value) {
+              if (value) Navigator.pop(context);
+            });
+          },
           label: 'Update',
-          isDisabled: false,
-          isLoading: false,
+          isDisabled: _auth.status == AuthStatus.authenticating ||
+              _firestore.status == FirestoreStatus.loading,
+          isLoading: _auth.status == AuthStatus.authenticating ||
+              _firestore.status == FirestoreStatus.loading,
         )
       ],
     );
+  }
+
+  void loadScreen() async {
+    await _firestore.getUserById(_auth.user?.uid ?? '').then((value) {
+      setState(() {
+        userProfile = value;
+        _businessAddress.text = userProfile?.businessAddress ?? '';
+        _businessName.text = userProfile?.businessName ?? '';
+        _name.text = userProfile?.name ?? '';
+        _phone.text = userProfile?.phone ?? '';
+      });
+    });
   }
 }

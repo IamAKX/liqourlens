@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:alcohol_inventory/services/firestore_service.dart';
 import 'package:alcohol_inventory/services/snackbar_service.dart';
 import 'package:alcohol_inventory/utils/static_messages.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
@@ -41,10 +43,28 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logoutUser() async {
     try {
+      status = AuthStatus.authenticating;
+      notifyListeners();
       await _auth.signOut();
       user = null;
       prefs.clear();
       status = AuthStatus.notAuthenticated;
+      notifyListeners();
+    } catch (e) {
+      SnackBarService.instance.showSnackBarError("Error Logging Out");
+    }
+    notifyListeners();
+  }
+
+  Future<void> updateUserName(String name) async {
+    try {
+      status = AuthStatus.authenticating;
+      notifyListeners();
+      if (user != null) {
+        user!.updateDisplayName(name);
+      }
+      status = AuthStatus.authenticated;
+      notifyListeners();
     } catch (e) {
       SnackBarService.instance.showSnackBarError("Error Logging Out");
     }
@@ -90,6 +110,7 @@ class AuthProvider extends ChangeNotifier {
       UserProfile newUser, String password) async {
     status = AuthStatus.authenticating;
     notifyListeners();
+    bool resp = false;
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: newUser.email!.trim(), password: password.trim());
@@ -97,18 +118,34 @@ class AuthProvider extends ChangeNotifier {
       user!.updateDisplayName(newUser.name);
       user!.sendEmailVerification();
       newUser.id = user!.uid;
-      // await ApiProvider.instance.createUser(newUser);
-      SnackBarService.instance
-          .showSnackBarSuccess(StaticMessage.onSuccessfullSignupMsg);
-      status = AuthStatus.authenticated;
-      notifyListeners();
-      return true;
+      newUser.createdAt = Timestamp.now();
+      newUser.lastUpdated = Timestamp.now();
+      newUser.lastLoggedIn = Timestamp.now();
+      newUser.lastRestocked = 0;
+      newUser.totalUnit = 0;
+      newUser.isActive = false;
+      await FirestoreProvider().createUser(newUser).then((value) {
+        if (value) {
+          SnackBarService.instance
+              .showSnackBarSuccess(StaticMessage.onSuccessfullSignupMsg);
+          status = AuthStatus.authenticated;
+          notifyListeners();
+          resp = true;
+        } else {
+          SnackBarService.instance
+              .showSnackBarError('Error in saving user data');
+          status = AuthStatus.error;
+          notifyListeners();
+          resp = false;
+        }
+      });
     } on FirebaseAuthException catch (e) {
       SnackBarService.instance.showSnackBarError(e.message!);
       status = AuthStatus.error;
       notifyListeners();
-      return false;
+      resp = false;
     }
+    return resp;
   }
 
   Future<bool> forgotPassword(String email) async {

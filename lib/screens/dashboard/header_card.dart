@@ -4,11 +4,21 @@ import 'package:alcohol_inventory/widgets/show_popup.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 
-class HeaderCard extends StatelessWidget {
+class HeaderCard extends StatefulWidget {
   const HeaderCard({
     super.key,
+    required this.totalUnits,
+    required this.lastRestocked,
   });
 
+  final double totalUnits;
+  final double lastRestocked;
+
+  @override
+  State<HeaderCard> createState() => _HeaderCardState();
+}
+
+class _HeaderCardState extends State<HeaderCard> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -28,7 +38,7 @@ class HeaderCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '8455',
+                        '${widget.totalUnits}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: primaryColor,
@@ -63,7 +73,7 @@ class HeaderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '150',
+                            '${widget.lastRestocked}',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge

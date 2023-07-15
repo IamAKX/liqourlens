@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/auth_provider.dart';
+import '../../services/firestore_service.dart';
 import '../../services/snackbar_service.dart';
 import 'header_card.dart';
 
@@ -26,25 +27,35 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
+  late FirestoreProvider _firestore;
   late AuthProvider _auth;
+  UserProfile? userProfile;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => loadScreen(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     SnackBarService.instance.buildContext = context;
     _auth = Provider.of<AuthProvider>(context);
+    _firestore = Provider.of<FirestoreProvider>(context);
 
     return Scaffold(
       backgroundColor: backgroundDark,
       appBar: AppBar(
-        title: Text('Hello ${_auth.user?.displayName?.split(' ')[0]}👋🏻'),
+        title: Text('Hello ${userProfile?.name ?? ''}👋🏻'),
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, ProfileScreen.routePath);
+              Navigator.pushNamed(context, ProfileScreen.routePath)
+                  .then((value) {
+                loadScreen();
+              });
             },
             icon: Hero(
               tag: 'image',
@@ -312,10 +323,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 180,
             color: primaryColor,
           ),
-          const HeaderCard(),
+          HeaderCard(
+            totalUnits: userProfile?.totalUnit ?? 0,
+            lastRestocked: userProfile?.lastRestocked ?? 0,
+          ),
           SearchBox(searchCtrl: _searchCtrl)
         ],
       ),
     );
+  }
+
+  void loadScreen() async {
+    await _firestore.getUserById(_auth.user?.uid ?? '').then((value) {
+      setState(() {
+        userProfile = value;
+      });
+    });
   }
 }

@@ -9,7 +9,9 @@ import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/user_profile.dart';
 import '../../services/auth_provider.dart';
+import '../../services/firestore_service.dart';
 import '../../services/snackbar_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -21,12 +23,31 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late FirestoreProvider _firestore;
   late AuthProvider _auth;
+  UserProfile? userProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => loadScreen(),
+    );
+  }
+
+  void loadScreen() async {
+    await _firestore.getUserById(_auth.user?.uid ?? '').then((value) {
+      setState(() {
+        userProfile = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     SnackBarService.instance.buildContext = context;
     _auth = Provider.of<AuthProvider>(context);
+    _firestore = Provider.of<FirestoreProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -74,14 +95,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               itemBuilder: (context, index) => ListTile(
                     onTap: () {
                       if (index == menuItems.length - 1) {
-                        _auth.logoutUser().then((value) =>
-                            Navigator.pushNamedAndRemoveUntil(
+                        _auth
+                            .logoutUser()
+                            .then((value) => Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 menuItems.elementAt(index).path,
-                                (route) => false));
+                                (route) => false))
+                            .then((value) {
+                          setState(() {
+                            loadScreen();
+                          });
+                        });
                       } else {
                         Navigator.pushNamed(
-                            context, menuItems.elementAt(index).path);
+                                context, menuItems.elementAt(index).path)
+                            .then((value) {
+                          loadScreen();
+                        });
                       }
                     },
                     leading: Icon(
@@ -173,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           verticalGap(defaultPadding / 2),
           Text(
-            'Hello ${_auth.user?.displayName?.split(' ')[0]}👋🏻',
+            'Hello ${userProfile?.name ?? ''}👋🏻',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                 ),

@@ -92,15 +92,9 @@ class UserProfile {
       businessName: map['businessName'],
       businessAddress: map['businessAddress'],
       isActive: map['isActive'],
-      lastLoggedIn: map['lastLoggedIn'] != null
-          ? Timestamp.fromMillisecondsSinceEpoch(map['lastLoggedIn'])
-          : null,
-      lastUpdated: map['lastUpdated'] != null
-          ? Timestamp.fromMillisecondsSinceEpoch(map['lastUpdated'])
-          : null,
-      createdAt: map['createdAt'] != null
-          ? Timestamp.fromMillisecondsSinceEpoch(map['createdAt'])
-          : null,
+      lastLoggedIn: map['lastLoggedIn'],
+      lastUpdated: map['lastUpdated'],
+      createdAt: map['createdAt'],
       totalUnit: map['totalUnit']?.toDouble(),
       lastRestocked: map['lastRestocked']?.toDouble(),
     );

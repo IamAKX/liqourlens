@@ -10,7 +10,7 @@ import '../../widgets/gaps.dart';
 import 'agreement_screen.dart';
 
 class UserDetail extends StatefulWidget {
-  UserDetail({
+  const UserDetail({
     super.key,
     required this.emailCtrl,
     required this.passwordCtrl,
