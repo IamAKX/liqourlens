@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:app_bar_with_search_switch/app_bar_with_search_switch.dart';
 import 'package:flutter/material.dart';

@@ -63,7 +63,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               list.addAll(
                 backUpList
                     .where((element) =>
-                        element?.name
+                        element.name
                             ?.toLowerCase()
                             .contains(value.toLowerCase()) ??
                         false)
@@ -110,7 +110,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 padding: const EdgeInsets.fromLTRB(defaultPadding,
                     defaultPadding, defaultPadding, defaultPadding / 2),
                 child: Text(
-                  item?.upc ?? '',
+                  item.upc ?? '',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        item?.name ?? '',
+                        item.name ?? '',
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -136,7 +136,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     horizontalGap(defaultPadding),
                     Text(
-                      '${item?.updateValue}',
+                      '${item.updateValue}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: textColorDark,
                             fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateTimeFormatter.formatDate(item?.lastUpdateTime),
+                      DateTimeFormatter.formatDate(item.lastUpdateTime),
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: textColorLight,
                           ),
@@ -167,14 +167,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: getColorByType(item?.updateType ?? '')
+                        color: getColorByType(item.updateType ?? '')
                             .withOpacity(0.15),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        item?.updateType?.toUpperCase() ?? '',
+                        item.updateType?.toUpperCase() ?? '',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: getColorByType(item?.updateType ?? ''),
+                              color: getColorByType(item.updateType ?? ''),
                             ),
                       ),
                     )

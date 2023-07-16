@@ -24,4 +24,15 @@ class DateTimeFormatter {
       return '-';
     }
   }
+
+  static String formatDateForReport(Timestamp? date) {
+    if (date == null) {
+      return '-';
+    }
+    try {
+      return DateFormat('dd MMM yyyy HH:mm:ss').format(date.toDate());
+    } catch (e) {
+      return '-';
+    }
+  }
 }

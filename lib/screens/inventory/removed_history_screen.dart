@@ -63,7 +63,7 @@ class _RemovedHistoryState extends State<RemovedHistory> {
               list.addAll(
                 backUpList
                     .where((element) =>
-                        element?.name
+                        element.name
                             ?.toLowerCase()
                             .contains(value.toLowerCase()) ??
                         false)
@@ -102,7 +102,7 @@ class _RemovedHistoryState extends State<RemovedHistory> {
             children: [
               Text(
                 DateTimeFormatter.formatDate(
-                    list.elementAt(index)?.lastUpdateTime),
+                    list.elementAt(index).lastUpdateTime),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Colors.grey,
                       fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _RemovedHistoryState extends State<RemovedHistory> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${list.elementAt(index)?.name}',
+                      '${list.elementAt(index).name}',
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -124,7 +124,7 @@ class _RemovedHistoryState extends State<RemovedHistory> {
                   ),
                   horizontalGap(defaultPadding),
                   Text(
-                    '${list.elementAt(index)?.updateValue}',
+                    '${list.elementAt(index).updateValue}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,

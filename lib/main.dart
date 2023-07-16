@@ -2,6 +2,7 @@ import 'package:alcohol_inventory/screens/home/main_container.dart';
 import 'package:alcohol_inventory/screens/onboarding/login_screen.dart';
 import 'package:alcohol_inventory/services/auth_provider.dart';
 import 'package:alcohol_inventory/services/firestore_service.dart';
+import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/router.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ApiProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ReportGeneratorProvider(),
         ),
       ],
       child: MaterialApp(

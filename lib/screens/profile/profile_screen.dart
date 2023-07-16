@@ -3,10 +3,12 @@ import 'package:alcohol_inventory/screens/profile/about_us.dart';
 import 'package:alcohol_inventory/screens/profile/chnage_password_screen.dart';
 import 'package:alcohol_inventory/screens/profile/edit_profile_screen.dart';
 import 'package:alcohol_inventory/screens/profile/profile_menu_item_model.dart';
+import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/user_profile.dart';
@@ -93,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
           child: ListView.separated(
               itemBuilder: (context, index) => ListTile(
-                    onTap: () {
+                    onTap: () async {
                       if (index == menuItems.length - 1) {
                         _auth
                             .logoutUser()
@@ -107,11 +109,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           });
                         });
                       } else {
-                        Navigator.pushNamed(
-                                context, menuItems.elementAt(index).path)
-                            .then((value) {
-                          loadScreen();
-                        });
+                        if (menuItems.elementAt(index).name == 'Report') {
+                          if (await Permission.manageExternalStorage
+                              .request()
+                              .isGranted) {
+                            ReportGeneratorProvider.instance
+                                .generateInventoryReport(_auth.user?.uid ?? '');
+                          } else {
+                            SnackBarService.instance.showSnackBarError(
+                                'Grant storage access to generate and save report');
+                          }
+                        } else {
+                          Navigator.pushNamed(
+                                  context, menuItems.elementAt(index).path)
+                              .then((value) {
+                            loadScreen();
+                          });
+                        }
                       }
                     },
                     leading: Icon(

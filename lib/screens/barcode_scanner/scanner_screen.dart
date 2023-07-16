@@ -390,8 +390,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               await FlutterBarcodeScanner.scanBarcode(
                       '#0B4F86', 'Cancel', true, ScanMode.BARCODE)
                   .then((barcode) {
-                // fetchFromUpc(barcode);
-                fetchFromUpc('0088110150556');
+                fetchFromUpc(barcode);
               });
             },
             child: const Text('Scan Barcode'),
