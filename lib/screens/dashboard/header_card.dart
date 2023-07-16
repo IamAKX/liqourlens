@@ -9,10 +9,12 @@ class HeaderCard extends StatefulWidget {
     super.key,
     required this.totalUnits,
     required this.lastRestocked,
+    required this.lastRestockedItemName,
   });
 
   final double totalUnits;
   final double lastRestocked;
+  final String lastRestockedItemName;
 
   @override
   State<HeaderCard> createState() => _HeaderCardState();
@@ -82,19 +84,22 @@ class _HeaderCardState extends State<HeaderCard> {
                                   color: primaryColor,
                                 ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              showPopup(
-                                  context,
-                                  DialogType.info,
-                                  'Last Restocked',
-                                  '150 units\nDomaine Drouhin Arthur Chard 7');
-                            },
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            icon: const Icon(
-                              Icons.info_outline,
-                              color: Colors.amber,
+                          Visibility(
+                            visible: widget.lastRestockedItemName.isNotEmpty,
+                            child: IconButton(
+                              onPressed: () {
+                                showPopup(
+                                    context,
+                                    DialogType.info,
+                                    'Last Restocked',
+                                    '${widget.lastRestocked} units\n${widget.lastRestockedItemName}');
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(
+                                Icons.info_outline,
+                                color: Colors.amber,
+                              ),
                             ),
                           )
                         ],

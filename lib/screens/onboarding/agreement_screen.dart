@@ -65,7 +65,7 @@ class _AgreementScreenState extends State<AgreementScreen> {
                   ),
                 )
                 ..loadRequest(
-                  Uri.parse(privacyPolicyUrl),
+                  Uri.parse(Api.privacyPolicyUrl),
                 ),
             ),
           )

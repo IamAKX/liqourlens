@@ -1,4 +1,6 @@
+import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/screens/inventory/product_history_screen.dart';
+import 'package:alcohol_inventory/utils/date_time_formatter.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,7 +12,10 @@ import '../../utils/colors.dart';
 class InventoryItemCard extends StatelessWidget {
   const InventoryItemCard({
     super.key,
+    required this.inventory,
   });
+
+  final InventoryModel inventory;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +39,7 @@ class InventoryItemCard extends StatelessWidget {
                   height: 80,
                   alignment: Alignment.center,
                   child: CachedNetworkImage(
-                    imageUrl:
-                        "https://pics.walgreens.com/prodimg/655974/450.jpg",
+                    imageUrl: inventory.item?.images?.first ?? '',
                     placeholder: (context, url) => Image.asset(
                       'assets/logo/loading.gif',
                       width: 80,
@@ -51,7 +55,7 @@ class InventoryItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tito\'s Vodka Titos Handmade Vodka, 1 L',
+                        '${inventory.item?.title}',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: textColorDark,
@@ -59,7 +63,7 @@ class InventoryItemCard extends StatelessWidget {
                       ),
                       verticalGap(defaultPadding / 4),
                       Text(
-                        '619947000013',
+                        '${inventory.item?.upc}',
                         style:
                             Theme.of(context).textTheme.labelMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -82,7 +86,7 @@ class InventoryItemCard extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    text: '35\n',
+                    text: '${inventory.quanty}\n',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: textColorDark,
@@ -102,14 +106,15 @@ class InventoryItemCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'Updated 3d ago',
+                  'Updated ${DateTimeFormatter.getTimesAgo(inventory.lastUpdateTime)} ago',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: hintColor,
                       ),
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, ProductHistory.routePath);
+                    Navigator.pushNamed(context, ProductHistory.routePath,
+                        arguments: inventory.item?.upc);
                   },
                   icon: const Icon(
                     Icons.chevron_right,

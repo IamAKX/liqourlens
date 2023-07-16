@@ -22,10 +22,12 @@ dependencies:
   flashy_tab_bar2: ^0.0.6
   flutter:
     sdk: flutter
+  flutter_barcode_scanner: ^2.0.0
   flutter_svg: ^2.0.7
   google_fonts: any
   intl: ^0.18.1
   provider: ^6.0.5
+  readmore: ^2.2.0
   shared_preferences: ^2.2.0
   string_validator: ^1.0.0
   timeago: ^3.4.0

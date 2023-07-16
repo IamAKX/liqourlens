@@ -49,5 +49,7 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>"Camera permission is needed to use barcode scanning. Please allow permissions."</string>
 	</dict>
 </plist>

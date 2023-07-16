@@ -1,8 +1,14 @@
-import 'package:alcohol_inventory/dummy/dummy_item.dart';
+import 'package:alcohol_inventory/utils/date_time_formatter.dart';
 import 'package:app_bar_with_search_switch/app_bar_with_search_switch.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/unit_model.dart';
+import '../../models/history_model.dart';
+import '../../services/api_provider.dart';
+import '../../services/auth_provider.dart';
+import '../../services/firestore_service.dart';
+import '../../services/snackbar_service.dart';
 import '../../utils/colors.dart';
 import '../../utils/theme.dart';
 import '../../widgets/gaps.dart';
@@ -16,15 +22,56 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  late FirestoreProvider _firestore;
+  late AuthProvider _auth;
+  late ApiProvider _api;
+  List<HistoryModel> list = [];
+  List<HistoryModel> backUpList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        _firestore.status = FirestoreStatus.ideal;
+        _api.status = ApiStatus.ideal;
+        _auth.status = AuthStatus.notAuthenticated;
+        loadScreen();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _auth = Provider.of<AuthProvider>(context);
+    _firestore = Provider.of<FirestoreProvider>(context);
+    _api = Provider.of<ApiProvider>(context);
+
     return Scaffold(
       appBar: AppBarWithSearchSwitch(
         keepAppBarColors: false,
         backgroundColor: Colors.white,
         animation: (child) => AppBarAnimationSlideLeft(
-            milliseconds: 600, withFade: false, percents: 1.0, child: child),
-        onChanged: (value) {},
+            milliseconds: 300, withFade: false, percents: 1.0, child: child),
+        onChanged: (value) {
+          setState(() {
+            list.clear();
+            if (value.isEmpty) {
+              list.addAll(backUpList);
+            } else {
+              list.addAll(
+                backUpList
+                    .where((element) =>
+                        element?.name
+                            ?.toLowerCase()
+                            .contains(value.toLowerCase()) ??
+                        false)
+                    .toList(),
+              );
+            }
+          });
+        },
         appBarBuilder: (context) => AppBar(
           title: const Text(
             'History',
@@ -36,15 +83,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ],
         ),
       ),
-      body: getBody(context),
+      body: _api.status == ApiStatus.loading ||
+              _firestore.status == FirestoreStatus.loading
+          ? showLoader(context)
+          : list.isEmpty
+              ? showEmptyList(context)
+              : getBody(context),
     );
   }
 
   getBody(BuildContext context) {
     return ListView.builder(
-      itemCount: dummyList.length,
+      itemCount: list.length,
       itemBuilder: (context, index) {
-        UnitModel model = dummyList.elementAt(index);
+        HistoryModel? item = list.elementAt(index);
         return Card(
           elevation: defaultPadding / 2,
           margin: const EdgeInsets.symmetric(
@@ -58,7 +110,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 padding: const EdgeInsets.fromLTRB(defaultPadding,
                     defaultPadding, defaultPadding, defaultPadding / 2),
                 child: Text(
-                  model.code ?? '',
+                  item?.upc ?? '',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -73,7 +125,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        model.name ?? '',
+                        item?.name ?? '',
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -84,7 +136,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     horizontalGap(defaultPadding),
                     Text(
-                      model.quantity ?? '',
+                      '${item?.updateValue}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: textColorDark,
                             fontWeight: FontWeight.bold,
@@ -107,7 +159,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      model.date ?? '',
+                      DateTimeFormatter.formatDate(item?.lastUpdateTime),
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: textColorLight,
                           ),
@@ -115,14 +167,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color:
-                            getColorByType(model.type ?? '').withOpacity(0.15),
+                        color: getColorByType(item?.updateType ?? '')
+                            .withOpacity(0.15),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        model.type?.toUpperCase() ?? '',
+                        item?.updateType?.toUpperCase() ?? '',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: getColorByType(model.type ?? ''),
+                              color: getColorByType(item?.updateType ?? ''),
                             ),
                       ),
                     )
@@ -133,6 +185,60 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         );
       },
+    );
+  }
+
+  void loadScreen() async {
+    _firestore.getHistoryByUser(_auth.user?.uid ?? '').then((value) {
+      setState(() {
+        list = value;
+        backUpList.addAll(list);
+      });
+    });
+  }
+
+  showLoader(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/logo/loading.gif',
+            width: 100,
+            height: 100,
+          ),
+          verticalGap(defaultPadding),
+          Text(
+            'Fetching details, please wait...',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor.withOpacity(0.5),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  showEmptyList(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset(
+            'assets/svg/notfound.svg',
+            width: 100,
+          ),
+          verticalGap(defaultPadding),
+          Text(
+            'No item found',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor.withOpacity(0.5),
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -16,6 +16,7 @@ class UserProfile {
   Timestamp? createdAt;
   double? totalUnit;
   double? lastRestocked;
+  String? lastRestockedItemName;
   UserProfile({
     this.id,
     this.name,
@@ -30,6 +31,7 @@ class UserProfile {
     this.createdAt,
     this.totalUnit,
     this.lastRestocked,
+    this.lastRestockedItemName,
   });
 
   UserProfile copyWith({
@@ -46,6 +48,7 @@ class UserProfile {
     Timestamp? createdAt,
     double? totalUnit,
     double? lastRestocked,
+    String? lastRestockedItemName,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -61,6 +64,8 @@ class UserProfile {
       createdAt: createdAt ?? this.createdAt,
       totalUnit: totalUnit ?? this.totalUnit,
       lastRestocked: lastRestocked ?? this.lastRestocked,
+      lastRestockedItemName:
+          lastRestockedItemName ?? this.lastRestockedItemName,
     );
   }
 
@@ -79,6 +84,7 @@ class UserProfile {
       'createdAt': createdAt,
       'totalUnit': totalUnit,
       'lastRestocked': lastRestocked,
+      'lastRestockedItemName': lastRestockedItemName,
     };
   }
 
@@ -97,6 +103,7 @@ class UserProfile {
       createdAt: map['createdAt'],
       totalUnit: map['totalUnit']?.toDouble(),
       lastRestocked: map['lastRestocked']?.toDouble(),
+      lastRestockedItemName: map['lastRestockedItemName'],
     );
   }
 
@@ -107,7 +114,7 @@ class UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, name: $name, email: $email, phone: $phone, image: $image, businessName: $businessName, businessAddress: $businessAddress, isActive: $isActive, lastLoggedIn: $lastLoggedIn, lastUpdated: $lastUpdated, createdAt: $createdAt, totalUnit: $totalUnit, lastRestocked: $lastRestocked)';
+    return 'UserProfile(id: $id, name: $name, email: $email, phone: $phone, image: $image, businessName: $businessName, businessAddress: $businessAddress, isActive: $isActive, lastLoggedIn: $lastLoggedIn, lastUpdated: $lastUpdated, createdAt: $createdAt, totalUnit: $totalUnit, lastRestocked: $lastRestocked, lastRestockedItemName: $lastRestockedItemName)';
   }
 
   @override
@@ -127,7 +134,8 @@ class UserProfile {
         other.lastUpdated == lastUpdated &&
         other.createdAt == createdAt &&
         other.totalUnit == totalUnit &&
-        other.lastRestocked == lastRestocked;
+        other.lastRestocked == lastRestocked &&
+        other.lastRestockedItemName == lastRestockedItemName;
   }
 
   @override
@@ -144,6 +152,7 @@ class UserProfile {
         lastUpdated.hashCode ^
         createdAt.hashCode ^
         totalUnit.hashCode ^
-        lastRestocked.hashCode;
+        lastRestocked.hashCode ^
+        lastRestockedItemName.hashCode;
   }
 }

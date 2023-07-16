@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
+import 'services/api_provider.dart';
 
 late SharedPreferences prefs;
 
@@ -36,6 +37,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => FirestoreProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ApiProvider(),
         ),
       ],
       child: MaterialApp(

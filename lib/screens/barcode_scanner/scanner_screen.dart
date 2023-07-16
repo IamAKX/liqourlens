@@ -1,11 +1,27 @@
+import 'dart:developer';
+
+import 'package:alcohol_inventory/models/inventory_model.dart';
+import 'package:alcohol_inventory/models/upc_response_model.dart';
+import 'package:alcohol_inventory/services/api_provider.dart';
+import 'package:alcohol_inventory/utils/api.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
+import 'package:alcohol_inventory/utils/date_time_formatter.dart';
+import 'package:alcohol_inventory/utils/enum.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:alcohol_inventory/widgets/primary_button.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:readmore/readmore.dart';
+
+import '../../services/auth_provider.dart';
+import '../../services/firestore_service.dart';
+import '../../services/snackbar_service.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key, required this.switchTabs});
@@ -18,11 +34,17 @@ class ScannerScreen extends StatefulWidget {
 class _ScannerScreenState extends State<ScannerScreen> {
   final TextEditingController _qtyCtrl = TextEditingController();
   double qty = 0.0;
-  bool showScanner = true;
+  late FirestoreProvider _firestore;
+  late AuthProvider _auth;
+  late ApiProvider _api;
+  UpcResponseModel? upcResponse;
+  InventoryModel? inventoryItem;
+  bool isItemNewToInventory = false;
 
   @override
   void initState() {
     super.initState();
+
     _qtyCtrl.text = qty.toString();
 
     _qtyCtrl.addListener(() {
@@ -37,15 +59,35 @@ class _ScannerScreenState extends State<ScannerScreen> {
         }
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        _firestore.status = FirestoreStatus.ideal;
+        _api.status = ApiStatus.ideal;
+        _auth.status = AuthStatus.notAuthenticated;
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    SnackBarService.instance.buildContext = context;
+    _auth = Provider.of<AuthProvider>(context);
+    _firestore = Provider.of<FirestoreProvider>(context);
+    _api = Provider.of<ApiProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanner'),
       ),
-      body: showScanner ? showScannerPrompt(context) : showBody(context),
+      body: _api.status == ApiStatus.loading ||
+              _firestore.status == FirestoreStatus.loading
+          ? showLoader(context)
+          : _api.status == ApiStatus.success &&
+                  _firestore.status == FirestoreStatus.success &&
+                  inventoryItem != null
+              ? showBody(context)
+              : showScannerPrompt(context),
     );
   }
 
@@ -54,7 +96,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       padding: const EdgeInsets.all(defaultPadding),
       children: [
         Text(
-          'Tito\'s Vodka Titos Handmade Vodka, 1 L',
+          '${inventoryItem?.item?.title}',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -67,8 +109,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               Expanded(
                 child: Center(
                   child: CachedNetworkImage(
-                    imageUrl:
-                        "https://pics.walgreens.com/prodimg/655974/450.jpg",
+                    imageUrl: '${inventoryItem?.item?.images?.first}',
                     placeholder: (context, url) => Image.asset(
                       'assets/logo/loading.gif',
                       width: 100,
@@ -92,14 +133,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      getItemDetailRow(context, 'UPC', "619947000013"),
+                      getItemDetailRow(
+                          context, 'UPC', "${inventoryItem?.item?.upc}"),
+                      verticalGap(defaultPadding / 2),
+                      getItemDetailRowWithReadmore(context, 'DESCRIPTION',
+                          "${inventoryItem?.item?.description}"),
                       verticalGap(defaultPadding / 2),
                       getItemDetailRow(
-                          context, 'DESCRIPTION', "TITOS VODKA 1 L"),
+                          context, 'BRAND', "${inventoryItem?.item?.brand}"),
                       verticalGap(defaultPadding / 2),
-                      getItemDetailRow(context, 'BRAND', "Tito's"),
-                      verticalGap(defaultPadding / 2),
-                      getItemDetailRow(context, 'QUANTITY', "47")
+                      getItemDetailRow(
+                          context, 'QUANTITY', "${inventoryItem?.quanty ?? 0}")
                     ],
                   ),
                 ),
@@ -116,6 +160,19 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 color: hintColor,
                 fontWeight: FontWeight.bold,
               ),
+        ),
+        verticalGap(
+          defaultPadding,
+        ),
+        getHorizontalRowItem(
+          context,
+          'Last updated quantity',
+          '${inventoryItem?.updateValue ?? 0}',
+        ),
+        getHorizontalRowItem(
+          context,
+          'Last updated on',
+          DateTimeFormatter.formatDate(inventoryItem?.lastUpdateTime),
         ),
         verticalGap(
           defaultPadding,
@@ -183,9 +240,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
             )
           ],
         ),
-        verticalGap(defaultPadding * 2),
+        verticalGap(defaultPadding),
         PrimaryButton(
           onPressed: () {
+            if (qty == 0) {
+              SnackBarService.instance
+                  .showSnackBarInfo('Quantity to be updated can not be 0');
+              return;
+            }
             AwesomeDialog(
               context: context,
               dialogType: DialogType.question,
@@ -196,6 +258,25 @@ class _ScannerScreenState extends State<ScannerScreen> {
               autoDismiss: false,
               btnOkOnPress: () {
                 FocusManager.instance.primaryFocus?.unfocus();
+
+                inventoryItem?.lastUpdateTime = Timestamp.now();
+                inventoryItem?.updateValue = qty;
+                inventoryItem?.quanty = qty + (inventoryItem?.quanty ?? 0);
+                if (!isItemNewToInventory) {
+                  inventoryItem?.updateType = qty < 0
+                      ? ModificationType.removed.name
+                      : ModificationType.restocked.name;
+                }
+                _firestore
+                    .updateInventory(_auth.user!.uid, inventoryItem!.item!.upc!,
+                        inventoryItem!)
+                    .then((value) {
+                  setState(() {
+                    _firestore.status = FirestoreStatus.ideal;
+                    _api.status = ApiStatus.ideal;
+                    _auth.status = AuthStatus.notAuthenticated;
+                  });
+                });
                 Navigator.of(context).pop();
               },
               btnOkColor: primaryColor,
@@ -209,10 +290,36 @@ class _ScannerScreenState extends State<ScannerScreen> {
           isDisabled: false,
           isLoading: false,
         ),
-        verticalGap(defaultPadding),
         TextButton(
-          onPressed: () {},
+          onPressed: () async {
+            await FlutterBarcodeScanner.scanBarcode(
+                    '#0B4F86', 'Cancel', true, ScanMode.BARCODE)
+                .then((barcode) {
+              fetchFromUpc(barcode);
+            });
+          },
           child: const Text('Scan more'),
+        )
+      ],
+    );
+  }
+
+  Row getHorizontalRowItem(BuildContext context, String key, String value) {
+    return Row(
+      children: [
+        Text(
+          key,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: hintColor,
+              ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
         )
       ],
     );
@@ -222,7 +329,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return Container(
       color: Colors.green.withOpacity(0.6),
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      alignment: Alignment.center,
       child: Text(
         '+',
         style: Theme.of(context)
@@ -280,15 +386,96 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
           verticalGap(defaultPadding),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                showScanner = false;
+            onPressed: () async {
+              await FlutterBarcodeScanner.scanBarcode(
+                      '#0B4F86', 'Cancel', true, ScanMode.BARCODE)
+                  .then((barcode) {
+                // fetchFromUpc(barcode);
+                fetchFromUpc('0088110150556');
               });
             },
             child: const Text('Scan Barcode'),
           )
         ],
       ),
+    );
+  }
+
+  showLoader(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/logo/loading.gif',
+            width: 100,
+            height: 100,
+          ),
+          verticalGap(defaultPadding),
+          Text(
+            'Fetching details, please wait...',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor.withOpacity(0.5),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void fetchFromUpc(String barcode) async {
+    isItemNewToInventory = false;
+    upcResponse = await _api.getItemByUpc(barcode);
+
+    if (upcResponse != null &&
+        upcResponse?.code == Api.ok &&
+        (upcResponse?.items?.isNotEmpty ?? false)) {
+      inventoryItem = await _firestore.getInventoryByUpc(
+          _auth.user?.uid ?? '', upcResponse?.items?.first.upc ?? '');
+      if (inventoryItem != null && inventoryItem?.item != null) {
+        SnackBarService.instance.showSnackBarSuccess(
+            'Item found. Current quantity : ${inventoryItem?.quanty}');
+        isItemNewToInventory = false;
+      } else {
+        SnackBarService.instance
+            .showSnackBarInfo('You are about to load new item');
+        isItemNewToInventory = true;
+        inventoryItem?.updateType = ModificationType.stocked.name;
+      }
+      setState(() {
+        inventoryItem?.item = upcResponse?.items?.first;
+      });
+    } else {
+      log('$barcode not present in UPC');
+      SnackBarService.instance.showSnackBarError('$barcode not present in UPC');
+    }
+  }
+
+  getItemDetailRowWithReadmore(BuildContext context, String key, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          key,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: hintColor,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        ReadMoreText(
+          value,
+          trimLines: 2,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: textColorDark,
+              ),
+          colorClickableText: primaryColor,
+          trimMode: TrimMode.Line,
+          trimCollapsedText: 'Show more',
+          trimExpandedText: '   Show less',
+        ),
+      ],
     );
   }
 }

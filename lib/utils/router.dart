@@ -29,7 +29,10 @@ class NavRoute {
       case HistoryScreen.routePath:
         return MaterialPageRoute(builder: (_) => const HistoryScreen());
       case ProductHistory.routePath:
-        return MaterialPageRoute(builder: (_) => const ProductHistory());
+        return MaterialPageRoute(
+            builder: (_) => ProductHistory(
+                  upc: settings.arguments as String,
+                ));
       case RemovedHistory.routePath:
         return MaterialPageRoute(builder: (_) => const RemovedHistory());
       case ProfileScreen.routePath:
@@ -40,6 +43,7 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const ChangePassword());
       case AboutUsScreen.routePath:
         return MaterialPageRoute(builder: (_) => const AboutUsScreen());
+
       default:
         return errorRoute();
     }
