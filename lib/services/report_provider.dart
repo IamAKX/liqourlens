@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:alcohol_inventory/models/history_model.dart';
@@ -23,8 +24,9 @@ class ReportGeneratorProvider extends ChangeNotifier {
       await getApplicationDocumentsDirectory()
           .then((dir) => filePath = dir.path);
     } else {
-      await getExternalStorageDirectory().then(
-          (dir) => filePath = dir?.path ?? '/storage/emulated/0/Download');
+      // await getExternalStorageDirectory().then(
+      //     (dir) => filePath = dir?.path ?? '/storage/emulated/0/Download');
+      filePath = '/storage/emulated/0/Download';
     }
     SnackBarService.instance
         .showSnackBarInfo('Generating report, please wait...');
@@ -90,8 +92,8 @@ class ReportGeneratorProvider extends ChangeNotifier {
       // ** End of inventory **
 
       // ** Start of history **
-      final Worksheet historySheet = workbook.worksheets[0];
-      historySheet.name = 'Inventory';
+      final Worksheet historySheet = workbook.worksheets[1];
+      historySheet.name = 'History';
       for (var headerIndex = 0;
           headerIndex < historyListHeader.length;
           headerIndex++) {
@@ -113,16 +115,17 @@ class ReportGeneratorProvider extends ChangeNotifier {
         historySheet
             .getRangeByIndex(rIndex + 2, 4)
             .setText('${model.quantity}');
-        historySheet.getRangeByIndex(rIndex + 2, 4).setText(
+        historySheet.getRangeByIndex(rIndex + 2, 5).setText(
             DateTimeFormatter.formatDateForReport(model.lastUpdateTime));
         historySheet
-            .getRangeByIndex(rIndex + 2, 4)
+            .getRangeByIndex(rIndex + 2, 6)
             .setText('${model.updateType?.toUpperCase()}');
       }
       // ** End of history **
-
+      log('Saving to $filePath/Report_${DateTime.now()}.xlsx');
       final List<int> bytes = workbook.saveAsStream();
-      File('$filePath/Report_${DateTime.now()}.xlsx').writeAsBytes(bytes);
+      File('$filePath/Report_${DateTime.now().toString().replaceAll(':', '').replaceAll(' ', '')}.xlsx')
+          .writeAsBytes(bytes);
 
       workbook.dispose();
       SnackBarService.instance.showSnackBarSuccess('Report generated');

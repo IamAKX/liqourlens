@@ -110,9 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         });
                       } else {
                         if (menuItems.elementAt(index).name == 'Report') {
-                          if (await Permission.manageExternalStorage
-                              .request()
-                              .isGranted) {
+                          if (await Permission.storage.request().isGranted) {
                             ReportGeneratorProvider.instance
                                 .generateInventoryReport(_auth.user?.uid ?? '');
                           } else {
