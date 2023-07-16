@@ -168,7 +168,7 @@ class FirestoreProvider extends ChangeNotifier {
         SnackBarService.instance.showSnackBarError(onError.message);
       });
     }).catchError((error) {
-      log('Error on saving | ${error}');
+      log('Error on saving | $error');
       status = FirestoreStatus.failed;
       notifyListeners();
       res = false;

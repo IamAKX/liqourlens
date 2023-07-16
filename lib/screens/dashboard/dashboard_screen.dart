@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:alcohol_inventory/models/history_model.dart';
 import 'package:alcohol_inventory/models/user_profile.dart';

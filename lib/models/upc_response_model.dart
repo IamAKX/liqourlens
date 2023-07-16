@@ -30,7 +30,7 @@ class UpcResponseModel {
     return {
       'code': code,
       'total': total,
-      'items': items?.map((x) => x?.toMap())?.toList(),
+      'items': items?.map((x) => x.toMap()).toList(),
     };
   }
 
