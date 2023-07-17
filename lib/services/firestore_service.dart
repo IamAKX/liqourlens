@@ -91,6 +91,31 @@ class FirestoreProvider extends ChangeNotifier {
     return result;
   }
 
+  Future<bool> updateUserPartially(
+      String userId, Map<String, dynamic> user) async {
+    status = FirestoreStatus.loading;
+    notifyListeners();
+    bool result = false;
+    await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .update(user)
+        .then((value) async {
+      log('Profile update successfully');
+
+      status = FirestoreStatus.success;
+      notifyListeners();
+      result = true;
+    }).catchError((error) {
+      log('Error on saving | ${error.message}');
+      status = FirestoreStatus.failed;
+      notifyListeners();
+      SnackBarService.instance.showSnackBarError(error.message);
+      result = false;
+    });
+    return result;
+  }
+
   Future<InventoryModel?> getInventoryByUpc(String userId, String upc) async {
     status = FirestoreStatus.loading;
     notifyListeners();

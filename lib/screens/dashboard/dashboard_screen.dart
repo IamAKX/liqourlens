@@ -1,4 +1,3 @@
-
 import 'package:alcohol_inventory/models/history_model.dart';
 import 'package:alcohol_inventory/models/user_profile.dart';
 import 'package:alcohol_inventory/screens/dashboard/search_box.dart';
@@ -9,6 +8,7 @@ import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/date_time_formatter.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -62,12 +62,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
             icon: Hero(
               tag: 'image',
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/dummy_user.jpg',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(35),
+                child: CachedNetworkImage(
+                  imageUrl: userProfile?.image ?? '',
+                  fit: BoxFit.cover,
                   width: 35,
                   height: 35,
-                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/logo/profile_image_placeholder.png',
+                    width: 35,
+                    height: 35,
+                  ),
                 ),
               ),
             ),

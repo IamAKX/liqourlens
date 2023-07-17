@@ -17,6 +17,8 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
   static const String routePath = '/register';
   static bool isAgree = false;
+  static String image = '';
+  static bool isImageUploading = false;
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
@@ -195,6 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         phone: _phoneCtrl.text,
                         businessName: _businessNameCtrl.text,
                         businessAddress: _businessAddressCtrl.text,
+                        image: RegisterScreen.image,
                       );
                       _auth
                           .registerUserWithEmailAndPassword(
@@ -233,6 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return BusinessDetails(
           businessNameCtrl: _businessNameCtrl,
           businessAddressCtrl: _businessAddressCtrl,
+          emailCtrl: _emailCtrl,
         );
 
       default:

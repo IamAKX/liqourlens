@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:alcohol_inventory/screens/onboarding/login_screen.dart';
 import 'package:alcohol_inventory/screens/profile/about_us.dart';
 import 'package:alcohol_inventory/screens/profile/chnage_password_screen.dart';
@@ -7,7 +10,9 @@ import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +20,7 @@ import '../../models/user_profile.dart';
 import '../../services/auth_provider.dart';
 import '../../services/firestore_service.dart';
 import '../../services/snackbar_service.dart';
+import '../../services/storage_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late FirestoreProvider _firestore;
   late AuthProvider _auth;
   UserProfile? userProfile;
+  bool isImageUploading = false;
 
   @override
   void initState() {
@@ -50,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     SnackBarService.instance.buildContext = context;
     _auth = Provider.of<AuthProvider>(context);
     _firestore = Provider.of<FirestoreProvider>(context);
-
+    log(_auth.user?.photoURL ?? '-no url');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
@@ -176,13 +183,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Hero(
                   tag: 'image',
                   child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(settingsPageUserIconSize),
-                    child: Image.asset(
-                      'assets/images/dummy_user.jpg',
-                      height: 110,
-                      width: 110,
+                    borderRadius: BorderRadius.circular(110),
+                    child: CachedNetworkImage(
+                      imageUrl: userProfile?.image ?? '',
                       fit: BoxFit.cover,
+                      width: 110,
+                      height: 110,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Image.asset(
+                        'assets/logo/profile_image_placeholder.png',
+                        width: 110,
+                        height: 110,
+                      ),
                     ),
                   ),
                 ),
@@ -190,7 +203,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   bottom: 1,
                   right: 1,
                   child: InkWell(
-                    onTap: () {},
+                    onTap: isImageUploading
+                        ? null
+                        : () async {
+                            final ImagePicker picker = ImagePicker();
+                            final XFile? image = await picker.pickImage(
+                                source: ImageSource.gallery);
+                            if (image != null) {
+                              File imageFile = File(image.path);
+                              setState(() {
+                                isImageUploading = true;
+                              });
+                              StorageService.uploadProfileImage(
+                                      imageFile,
+                                      '${_auth.user?.email}.${image.name.split('.')[1]}',
+                                      'profileImage')
+                                  .then((value) async {
+                                _firestore.updateUserPartially(
+                                    _auth.user?.uid ?? '',
+                                    {'image': value}).then((value) {
+                                  isImageUploading = false;
+                                  loadScreen();
+                                });
+                              });
+                            }
+                          },
                     child: Container(
                       width: 40,
                       height: 40,
@@ -202,11 +239,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 3,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 15,
-                      ),
+                      child: isImageUploading
+                          ? const CircularProgressIndicator()
+                          : const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 15,
+                            ),
                     ),
                   ),
                 ),
