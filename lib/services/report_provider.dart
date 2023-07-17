@@ -62,7 +62,7 @@ class ReportGeneratorProvider extends ChangeNotifier {
       globalStyle.bold = true;
 
       // ** Start of inventory **
-      final Worksheet inventorySheet = workbook.worksheets[1];
+      final Worksheet inventorySheet = workbook.worksheets[0];
       inventorySheet.name = 'Inventory';
       for (var headerIndex = 0;
           headerIndex < inventoryListHeader.length;
