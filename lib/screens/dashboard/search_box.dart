@@ -36,6 +36,7 @@ class SearchBox extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: _searchCtrl,
+                  enabled: false,
                   decoration: const InputDecoration(
                     hintText: 'Seach you inventory',
                     border: InputBorder.none,

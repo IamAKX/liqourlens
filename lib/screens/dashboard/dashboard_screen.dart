@@ -359,7 +359,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             lastRestocked: userProfile?.lastRestocked ?? 0,
             lastRestockedItemName: userProfile?.lastRestockedItemName ?? '',
           ),
-          SearchBox(searchCtrl: _searchCtrl)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: InkWell(
+              onTap: () => widget.switchTabs(2),
+              child: SearchBox(searchCtrl: _searchCtrl),
+            ),
+          )
         ],
       ),
     );

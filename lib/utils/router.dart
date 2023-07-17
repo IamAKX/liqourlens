@@ -1,4 +1,5 @@
 import 'package:alcohol_inventory/screens/home/main_container.dart';
+import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/product_history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/removed_history_screen.dart';
@@ -43,6 +44,12 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const ChangePassword());
       case AboutUsScreen.routePath:
         return MaterialPageRoute(builder: (_) => const AboutUsScreen());
+      case CustomInventoryScreen.routePath:
+        return MaterialPageRoute(
+          builder: (_) => CustomInventoryScreen(
+            upc: settings.arguments as String,
+          ),
+        );
 
       default:
         return errorRoute();

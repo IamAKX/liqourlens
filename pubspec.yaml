@@ -65,8 +65,8 @@ flutter_native_splash:
   ios_content_mode: scaleToFill
 # flutter pub run flutter_native_splash:create
 flutter_icons:
-  android: "launcher_icon"
   ios: true
+  android: false
   remove_alpha_ios: true
   image_path: "assets/images/play_store_512.png"
   adaptive_icon_background: "#0B4F86"

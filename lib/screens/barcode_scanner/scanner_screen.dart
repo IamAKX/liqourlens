@@ -1,7 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/models/upc_response_model.dart';
+import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
 import 'package:alcohol_inventory/services/api_provider.dart';
 import 'package:alcohol_inventory/utils/api.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
@@ -108,15 +111,22 @@ class _ScannerScreenState extends State<ScannerScreen> {
             children: [
               Expanded(
                 child: Center(
-                  child: CachedNetworkImage(
-                    imageUrl: '${inventoryItem?.item?.images?.first}',
-                    placeholder: (context, url) => Image.asset(
-                      'assets/logo/loading.gif',
-                      width: 100,
-                    ),
-                    errorWidget: (context, url, error) => SvgPicture.asset(
-                      'assets/svg/notfound.svg',
-                      width: 100,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal:
+                            (inventoryItem?.item?.ean?.isNotEmpty ?? false)
+                                ? 0
+                                : defaultPadding),
+                    child: CachedNetworkImage(
+                      imageUrl: '${inventoryItem?.item?.images?.first}',
+                      placeholder: (context, url) => Image.asset(
+                        'assets/logo/loading.gif',
+                        width: 100,
+                      ),
+                      errorWidget: (context, url, error) => SvgPicture.asset(
+                        'assets/svg/notfound.svg',
+                        width: 100,
+                      ),
                     ),
                   ),
                 ),
@@ -253,7 +263,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               dialogType: DialogType.question,
               animType: AnimType.bottomSlide,
               title: 'Are you sure?',
-              desc: 'You are updating the quanty to $qty',
+              desc: 'You are updating the quanty by $qty',
               onDismissCallback: (type) {},
               autoDismiss: false,
               btnOkOnPress: () {
@@ -287,8 +297,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ).show();
           },
           label: 'Update',
-          isDisabled: false,
-          isLoading: false,
+          isDisabled: _api.status == ApiStatus.loading ||
+              _firestore.status == FirestoreStatus.loading,
+          isLoading: _api.status == ApiStatus.loading ||
+              _firestore.status == FirestoreStatus.loading,
         ),
         TextButton(
           onPressed: () async {
@@ -430,6 +442,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (upcResponse != null &&
         upcResponse?.code == Api.ok &&
         (upcResponse?.items?.isNotEmpty ?? false)) {
+      // When item present in UPC
       inventoryItem = await _firestore.getInventoryByUpc(
           _auth.user?.uid ?? '', upcResponse?.items?.first.upc ?? '');
       if (inventoryItem != null && inventoryItem?.item != null) {
@@ -446,8 +459,28 @@ class _ScannerScreenState extends State<ScannerScreen> {
         inventoryItem?.item = upcResponse?.items?.first;
       });
     } else {
-      log('$barcode not present in UPC');
-      SnackBarService.instance.showSnackBarError('$barcode not present in UPC');
+      // When item not present in upc
+      inventoryItem =
+          await _firestore.getInventoryByUpc(_auth.user?.uid ?? '', barcode);
+      if (inventoryItem != null && inventoryItem?.item != null) {
+        SnackBarService.instance.showSnackBarSuccess(
+            'Item found. Current quantity : ${inventoryItem?.quanty}');
+        _api.status = ApiStatus.success;
+        isItemNewToInventory = false;
+      } else {
+        SnackBarService.instance
+            .showSnackBarInfo('You are about to load new item');
+        isItemNewToInventory = true;
+        inventoryItem?.updateType = ModificationType.stocked.name;
+        Navigator.pushNamed(context, CustomInventoryScreen.routePath,
+                arguments: barcode)
+            .then((value) {
+          _firestore.status = FirestoreStatus.ideal;
+          _api.status = ApiStatus.ideal;
+          _auth.status = AuthStatus.notAuthenticated;
+        });
+      }
+      setState(() {});
     }
   }
 
