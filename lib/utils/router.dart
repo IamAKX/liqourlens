@@ -1,3 +1,4 @@
+import 'package:alcohol_inventory/screens/blocked_user/blocked_user.dart';
 import 'package:alcohol_inventory/screens/home/main_container.dart';
 import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/history_screen.dart';
@@ -44,6 +45,8 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const ChangePassword());
       case AboutUsScreen.routePath:
         return MaterialPageRoute(builder: (_) => const AboutUsScreen());
+      case BlockedUser.routePath:
+        return MaterialPageRoute(builder: (_) => const BlockedUser());
       case CustomInventoryScreen.routePath:
         return MaterialPageRoute(
           builder: (_) => CustomInventoryScreen(

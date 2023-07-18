@@ -1,5 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:alcohol_inventory/models/user_profile.dart';
+import 'package:alcohol_inventory/screens/blocked_user/blocked_user.dart';
 import 'package:alcohol_inventory/screens/onboarding/password_recovery.dart';
 import 'package:alcohol_inventory/screens/onboarding/register_screen.dart';
+import 'package:alcohol_inventory/services/firestore_service.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/widgets/input_field.dart';
 import 'package:alcohol_inventory/widgets/input_password_field.dart';
@@ -25,11 +30,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
   late AuthProvider _auth;
+  late FirestoreProvider _firestore;
 
   @override
   Widget build(BuildContext context) {
     SnackBarService.instance.buildContext = context;
     _auth = Provider.of<AuthProvider>(context);
+    _firestore = Provider.of<FirestoreProvider>(context);
     return Scaffold(
       body: getBody(context),
     );
@@ -74,13 +81,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   _auth
                       .loginUserWithEmailAndPassword(
                           _emailCtrl.text, _passwordCtrl.text)
-                      .then((value) {
+                      .then((value) async {
                     if (_auth.status == AuthStatus.authenticated) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        HomeContainer.routePath,
-                        (route) => false,
-                      );
+                      UserProfile? user =
+                          await _firestore.getUserById(_auth.user?.uid ?? '');
+                      if (user?.isActive ?? false) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          HomeContainer.routePath,
+                          (route) => false,
+                        );
+                      } else {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          BlockedUser.routePath,
+                          (route) => false,
+                        );
+                      }
                     }
                   });
                 },

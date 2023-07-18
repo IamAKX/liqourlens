@@ -40,7 +40,7 @@ class _HeaderCardState extends State<HeaderCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${widget.totalUnits}',
+                        widget.totalUnits.toStringAsFixed(1),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: primaryColor,
@@ -75,7 +75,7 @@ class _HeaderCardState extends State<HeaderCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${widget.lastRestocked}',
+                            widget.lastRestocked.toStringAsFixed(1),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
@@ -92,7 +92,7 @@ class _HeaderCardState extends State<HeaderCard> {
                                     context,
                                     DialogType.info,
                                     'Last Restocked',
-                                    '${widget.lastRestocked} units\n${widget.lastRestockedItemName}');
+                                    '${widget.lastRestocked.toStringAsFixed(1)} units\n${widget.lastRestockedItemName}');
                               },
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),

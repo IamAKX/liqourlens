@@ -10,6 +10,7 @@ import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -78,6 +79,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.lock_person_outlined,
     ),
     ProfileMenuItemModel(
+      name: 'Clear Inventory',
+      path: '',
+      icon: Icons.delete_forever_outlined,
+    ),
+    ProfileMenuItemModel(
       name: 'Report',
       path: '',
       icon: Icons.description_outlined,
@@ -103,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView.separated(
               itemBuilder: (context, index) => ListTile(
                     onTap: () async {
-                      if (index == menuItems.length - 1) {
+                      if (index == 5) {
                         _auth
                             .logoutUser()
                             .then((value) => Navigator.pushNamedAndRemoveUntil(
@@ -115,22 +121,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             loadScreen();
                           });
                         });
-                      } else {
-                        if (menuItems.elementAt(index).name == 'Report') {
-                          if (await Permission.storage.request().isGranted) {
-                            ReportGeneratorProvider.instance
-                                .generateInventoryReport(_auth.user?.uid ?? '');
-                          } else {
-                            SnackBarService.instance.showSnackBarError(
-                                'Grant storage access to generate and save report');
-                          }
+                      } else if (index == 2) {
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.question,
+                          animType: AnimType.bottomSlide,
+                          title: 'Are you sure?',
+                          desc:
+                              'You are about to delete your inventory data which cannot to restored',
+                          onDismissCallback: (type) {},
+                          autoDismiss: false,
+                          btnCancelColor: primaryColor,
+                          btnOkOnPress: () {
+                            _firestore
+                                .clearInventory(userProfile?.id ?? '')
+                                .then((value) {
+                              SnackBarService.instance
+                                  .showSnackBarSuccess('Inventory cleared');
+                              setState(() {});
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          btnOkColor: Colors.red,
+                          btnOkText: 'Delete',
+                          btnCancelOnPress: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            Navigator.of(context).pop();
+                          },
+                        ).show();
+                      } else if (index == 3) {
+                        if (await Permission.storage.request().isGranted) {
+                          ReportGeneratorProvider.instance
+                              .generateInventoryReport(_auth.user?.uid ?? '');
                         } else {
-                          Navigator.pushNamed(
-                                  context, menuItems.elementAt(index).path)
-                              .then((value) {
-                            loadScreen();
-                          });
+                          SnackBarService.instance.showSnackBarError(
+                              'Grant storage access to generate and save report');
                         }
+                      } else {
+                        Navigator.pushNamed(
+                                context, menuItems.elementAt(index).path)
+                            .then((value) {
+                          loadScreen();
+                        });
                       }
                     },
                     leading: Icon(

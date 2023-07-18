@@ -176,7 +176,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   horizontalGap(defaultPadding),
                                   Text(
-                                    '${recentRemovedList.elementAt(index).updateValue}',
+                                    recentRemovedList
+                                            .elementAt(index)
+                                            .updateValue
+                                            ?.toStringAsFixed(1) ??
+                                        '0',
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
@@ -278,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               horizontalGap(defaultPadding),
                               Text(
-                                '${model.updateValue}',
+                                model.updateValue?.toStringAsFixed(1) ?? '0',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium

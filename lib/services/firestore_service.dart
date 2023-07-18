@@ -322,4 +322,40 @@ class FirestoreProvider extends ChangeNotifier {
     notifyListeners();
     return list;
   }
+
+  Future<void> clearInventory(String userId) async {
+    status = FirestoreStatus.loading;
+    notifyListeners();
+
+    QuerySnapshot<Map<String, dynamic>> inventorySnapshots = await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.inventory.name)
+        .get();
+    inventorySnapshots.docs.forEach((element) async {
+      await element.reference.update({
+        'quanty': 0.0,
+        'updateType': ModificationType.removed.name,
+        'updateValue': 0.0,
+        'lastUpdateTime': Timestamp.now()
+      });
+    });
+
+    QuerySnapshot<Map<String, dynamic>> historySnapshots = await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.history.name)
+        .get();
+
+    historySnapshots.docs.forEach((element) async {
+      await element.reference.delete();
+    });
+
+    await updateUserPartially(userId, {
+      'lastRestocked': 0.0,
+      'lastRestockedItemName': '',
+      'lastUpdated': Timestamp.now(),
+      'totalUnit': 0.0,
+    });
+  }
 }

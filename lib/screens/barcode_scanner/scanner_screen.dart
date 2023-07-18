@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/models/upc_response_model.dart';
 import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
@@ -116,13 +118,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                 ? 0
                                 : defaultPadding),
                     child: CachedNetworkImage(
-                      imageUrl: '${inventoryItem?.item?.images?.first}',
+                      imageUrl: getImageUrl(inventoryItem?.item?.images),
                       placeholder: (context, url) => Image.asset(
                         'assets/logo/loading.gif',
                         width: 100,
                       ),
-                      errorWidget: (context, url, error) => SvgPicture.asset(
-                        'assets/svg/notfound.svg',
+                      errorWidget: (context, url, error) => Image.asset(
+                        'assets/images/dummy_bottle.jpeg',
                         width: 100,
                       ),
                     ),
@@ -508,5 +510,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
         ),
       ],
     );
+  }
+
+  getImageUrl(List<String>? images) {
+    if (images?.isNotEmpty ?? false) {
+      return images?.first ?? '';
+    }
+    return '';
   }
 }

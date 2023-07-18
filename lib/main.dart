@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:alcohol_inventory/models/user_profile.dart';
+import 'package:alcohol_inventory/screens/blocked_user/blocked_user.dart';
 import 'package:alcohol_inventory/screens/home/main_container.dart';
 import 'package:alcohol_inventory/screens/onboarding/login_screen.dart';
 import 'package:alcohol_inventory/services/auth_provider.dart';
@@ -5,6 +9,7 @@ import 'package:alcohol_inventory/services/firestore_service.dart';
 import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/router.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +19,7 @@ import 'firebase_options.dart';
 import 'services/api_provider.dart';
 
 late SharedPreferences prefs;
+UserProfile? user;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +27,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  if (AuthProvider().checkCurrentUserIsAuthenticated()) {
+    user =
+        await FirestoreProvider().getUserById(AuthProvider().user?.uid ?? '');
+  }
+
   runApp(const MyApp());
 }
 
@@ -58,9 +69,13 @@ class MyApp extends StatelessWidget {
   }
 
   Widget getHomeScreen() {
-    if (AuthProvider().checkCurrentUserIsAuthenticated()) {
+    if (user == null) return const LoginScreen();
+    if (user?.isActive ?? false) {
+      FirestoreProvider().updateUserPartially(
+          user?.id ?? '', {'lastLoggedIn': Timestamp.now()});
       return const HomeContainer();
+    } else {
+      return const BlockedUser();
     }
-    return const LoginScreen();
   }
 }

@@ -136,7 +136,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     horizontalGap(defaultPadding),
                     Text(
-                      '${item.updateValue}',
+                      item.updateValue?.toStringAsFixed(1) ?? '0',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: textColorDark,
                             fontWeight: FontWeight.bold,

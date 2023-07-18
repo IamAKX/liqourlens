@@ -124,7 +124,8 @@ class _RemovedHistoryState extends State<RemovedHistory> {
                   ),
                   horizontalGap(defaultPadding),
                   Text(
-                    '${list.elementAt(index).updateValue}',
+                    list.elementAt(index).updateValue?.toStringAsFixed(1) ??
+                        '0',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,

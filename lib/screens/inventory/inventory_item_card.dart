@@ -39,13 +39,13 @@ class InventoryItemCard extends StatelessWidget {
                   height: 80,
                   alignment: Alignment.center,
                   child: CachedNetworkImage(
-                    imageUrl: inventory.item?.images?.first ?? '',
+                    imageUrl: getImageUrl(inventory.item?.images),
                     placeholder: (context, url) => Image.asset(
                       'assets/logo/loading.gif',
                       width: 80,
                     ),
-                    errorWidget: (context, url, error) => SvgPicture.asset(
-                      'assets/svg/notfound.svg',
+                    errorWidget: (context, url, error) => Image.asset(
+                      'assets/images/dummy_bottle.jpeg',
                       width: 80,
                     ),
                   ),
@@ -86,7 +86,7 @@ class InventoryItemCard extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    text: '${inventory.quanty}\n',
+                    text: '${inventory.quanty?.toStringAsFixed(1) ?? '0'}\n',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: textColorDark,
@@ -127,5 +127,12 @@ class InventoryItemCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  getImageUrl(List<String>? images) {
+    if (images?.isNotEmpty ?? false) {
+      return images?.first ?? '';
+    }
+    return '';
   }
 }
