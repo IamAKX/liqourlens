@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
-
 import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/models/upc_response_model.dart';
 import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
@@ -223,7 +221,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       child: TextField(
                         controller: _qtyCtrl,
                         textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                         textAlignVertical: TextAlignVertical.center,
                         maxLines: 1,
                         textInputAction: TextInputAction.done,
