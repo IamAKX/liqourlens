@@ -89,22 +89,6 @@ class _CustomInventoryScreenState extends State<CustomInventoryScreen> {
         ),
         verticalGap(defaultPadding),
         InputField(
-          hint: 'Description',
-          controller: _description,
-          keyboardType: TextInputType.name,
-          obscure: false,
-          icon: Icons.liquor_outlined,
-        ),
-        verticalGap(defaultPadding),
-        InputField(
-          hint: 'Brand',
-          controller: _brand,
-          keyboardType: TextInputType.name,
-          obscure: false,
-          icon: Icons.liquor_outlined,
-        ),
-        verticalGap(defaultPadding),
-        InputField(
           hint: 'Quantity',
           controller: _quantity,
           keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -171,8 +155,6 @@ class _CustomInventoryScreenState extends State<CustomInventoryScreen> {
         PrimaryButton(
           onPressed: () {
             if (_title.text.isEmpty ||
-                _description.text.isEmpty ||
-                _brand.text.isEmpty ||
                 _quantity.text.isEmpty ||
                 liquorImage.isEmpty) {
               SnackBarService.instance

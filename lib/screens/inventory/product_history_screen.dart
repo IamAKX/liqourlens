@@ -52,8 +52,7 @@ class _ProductHistoryState extends State<ProductHistory> {
           'Product History',
         ),
       ),
-      body: _api.status == ApiStatus.loading ||
-              _firestore.status == FirestoreStatus.loading
+      body: _firestore.status == FirestoreStatus.loading
           ? showLoader(context)
           : list.isEmpty
               ? showEmptyList(context)
@@ -94,7 +93,7 @@ class _ProductHistoryState extends State<ProductHistory> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Tito\'s Vodka Titos Handmade Vodka, 1 L',
+                        model?.name ?? '',
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -201,7 +200,7 @@ class _ProductHistoryState extends State<ProductHistory> {
           ),
           verticalGap(defaultPadding),
           Text(
-            'Fetching details, please wait...',
+            'No item found',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: primaryColor.withOpacity(0.5),

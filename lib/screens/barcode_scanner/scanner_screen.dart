@@ -437,6 +437,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void fetchFromUpc(String barcode) async {
+    barcode += '1111';
     isItemNewToInventory = false;
     upcResponse = await _api.getItemByUpc(barcode);
 
