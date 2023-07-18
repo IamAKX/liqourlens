@@ -359,11 +359,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
             lastRestocked: userProfile?.lastRestocked ?? 0,
             lastRestockedItemName: userProfile?.lastRestockedItemName ?? '',
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: InkWell(
-              onTap: () => widget.switchTabs(2),
-              child: SearchBox(searchCtrl: _searchCtrl),
+          Positioned(
+            bottom: defaultPadding,
+            left: defaultPadding,
+            child: Card(
+              child: Container(
+                width: MediaQuery.of(context).size.width - defaultPadding * 2,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: defaultPadding,
+                  vertical: defaultPadding * .75,
+                ),
+                child: InkWell(
+                  onTap: () => widget.switchTabs(2),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.search,
+                        color: hintColor,
+                      ),
+                      horizontalGap(defaultPadding * .75),
+                      Text(
+                        'Search your inventory',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: hintColor,
+                            ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ),
           )
         ],
