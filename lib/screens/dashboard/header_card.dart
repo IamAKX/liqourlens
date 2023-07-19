@@ -74,15 +74,20 @@ class _HeaderCardState extends State<HeaderCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.lastRestocked.toStringAsFixed(1),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryColor,
-                                ),
+                          Expanded(
+                            child: Text(
+                              // widget.lastRestocked.toStringAsFixed(1),
+                              widget.lastRestockedItemName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    // fontWeight: FontWeight.bold,
+                                    color: primaryColor,
+                                  ),
+                            ),
                           ),
                           Visibility(
                             visible: widget.lastRestockedItemName.isNotEmpty,
