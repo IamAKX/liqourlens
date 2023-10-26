@@ -64,19 +64,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               tag: 'image',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(35),
-                child: CachedNetworkImage(
-                  imageUrl: userProfile?.image ?? '',
-                  fit: BoxFit.cover,
-                  width: 35,
-                  height: 35,
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Image.asset(
-                    'assets/logo/profile_image_placeholder.png',
-                    width: 35,
-                    height: 35,
-                  ),
-                ),
+                child: userProfile?.image?.isEmpty ?? true
+                    ? Image.asset(
+                        'assets/logo/profile_image_placeholder.png',
+                        width: 35,
+                        height: 35,
+                      )
+                    : CachedNetworkImage(
+                        imageUrl: userProfile?.image ?? '',
+                        fit: BoxFit.cover,
+                        width: 35,
+                        height: 35,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/logo/profile_image_placeholder.png',
+                          width: 35,
+                          height: 35,
+                        ),
+                      ),
               ),
             ),
           ),

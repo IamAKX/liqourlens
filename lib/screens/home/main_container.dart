@@ -1,5 +1,6 @@
 import 'package:alcohol_inventory/screens/barcode_scanner/scanner_screen.dart';
 import 'package:alcohol_inventory/screens/dashboard/dashboard_screen.dart';
+import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/inventory_screen.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';

@@ -10,7 +10,9 @@ import 'package:alcohol_inventory/screens/onboarding/register_screen.dart';
 import 'package:alcohol_inventory/screens/profile/about_us.dart';
 import 'package:alcohol_inventory/screens/profile/chnage_password_screen.dart';
 import 'package:alcohol_inventory/screens/profile/edit_profile_screen.dart';
+import 'package:alcohol_inventory/screens/profile/inventory_items_view.dart';
 import 'package:alcohol_inventory/screens/profile/profile_screen.dart';
+import 'package:alcohol_inventory/screens/profile/upload_report.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/onboarding/login_screen.dart';
@@ -45,8 +47,12 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const ChangePassword());
       case AboutUsScreen.routePath:
         return MaterialPageRoute(builder: (_) => const AboutUsScreen());
+      case UploadReport.routePath:
+        return MaterialPageRoute(builder: (_) => const UploadReport());
       case BlockedUser.routePath:
         return MaterialPageRoute(builder: (_) => const BlockedUser());
+      case InventoryItemView.routePath:
+        return MaterialPageRoute(builder: (_) => const InventoryItemView());
       case CustomInventoryScreen.routePath:
         return MaterialPageRoute(
           builder: (_) => CustomInventoryScreen(

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:alcohol_inventory/models/history_model.dart';
+import 'package:alcohol_inventory/models/inventory_item_view_model.dart';
 import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/models/user_profile.dart';
 import 'package:alcohol_inventory/services/auth_provider.dart';
@@ -11,7 +12,7 @@ import 'package:flutter/material.dart';
 
 enum FirestoreStatus { ideal, loading, success, failed }
 
-enum FirestoreCollections { users, inventory, history }
+enum FirestoreCollections { users, inventory, history, drinkCollection }
 
 class FirestoreProvider extends ChangeNotifier {
   late FirebaseFirestore _db;
@@ -357,5 +358,49 @@ class FirestoreProvider extends ChangeNotifier {
       'lastUpdated': Timestamp.now(),
       'totalUnit': 0.0,
     });
+  }
+
+  Future<bool?> addInventoryItem(String userId, Set<String?> itemSet) async {
+    status = FirestoreStatus.loading;
+    notifyListeners();
+    bool res = false;
+    await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.drinkCollection.name)
+        .doc('stock')
+        .set({'items': itemSet}).then((value) async {
+      res = true;
+    }).catchError((error) {
+      log('Error on saving | $error');
+      status = FirestoreStatus.failed;
+      notifyListeners();
+      res = false;
+      SnackBarService.instance.showSnackBarError(error);
+    });
+    return res;
+  }
+
+  Future<List<String>?> getInventoryItem(String userId) async {
+    status = FirestoreStatus.loading;
+    notifyListeners();
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.drinkCollection.name)
+        .get();
+
+    ;
+
+    InventoryItemViewModel model =
+        InventoryItemViewModel.fromMap(querySnapshot.docs.first.data());
+
+    List<String>? list = model.items;
+    list?.sort(
+      (a, b) => a.compareTo(b),
+    );
+    status = FirestoreStatus.failed;
+    notifyListeners();
+    return list;
   }
 }

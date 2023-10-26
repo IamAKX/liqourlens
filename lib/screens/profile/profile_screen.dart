@@ -6,6 +6,7 @@ import 'package:alcohol_inventory/screens/profile/about_us.dart';
 import 'package:alcohol_inventory/screens/profile/chnage_password_screen.dart';
 import 'package:alcohol_inventory/screens/profile/edit_profile_screen.dart';
 import 'package:alcohol_inventory/screens/profile/profile_menu_item_model.dart';
+import 'package:alcohol_inventory/screens/profile/upload_report.dart';
 import 'package:alcohol_inventory/services/report_provider.dart';
 import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
@@ -89,6 +90,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.description_outlined,
     ),
     ProfileMenuItemModel(
+      name: 'Upload Report Template',
+      path: UploadReport.routePath,
+      icon: Icons.upload_file,
+    ),
+    ProfileMenuItemModel(
       name: 'About us',
       path: AboutUsScreen.routePath,
       icon: Icons.info_outline,
@@ -109,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView.separated(
               itemBuilder: (context, index) => ListTile(
                     onTap: () async {
-                      if (index == 5) {
+                      if (index == 6) {
                         _auth
                             .logoutUser()
                             .then((value) => Navigator.pushNamedAndRemoveUntil(
@@ -216,19 +222,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   tag: 'image',
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(110),
-                    child: CachedNetworkImage(
-                      imageUrl: userProfile?.image ?? '',
-                      fit: BoxFit.cover,
-                      width: 110,
-                      height: 110,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Image.asset(
-                        'assets/logo/profile_image_placeholder.png',
-                        width: 110,
-                        height: 110,
-                      ),
-                    ),
+                    child: (userProfile?.image?.isEmpty ?? true)
+                        ? Image.asset(
+                            'assets/logo/profile_image_placeholder.png',
+                            width: 110,
+                            height: 110,
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: userProfile?.image ?? '',
+                            fit: BoxFit.cover,
+                            width: 110,
+                            height: 110,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/logo/profile_image_placeholder.png',
+                              width: 110,
+                              height: 110,
+                            ),
+                          ),
                   ),
                 ),
                 Positioned(
