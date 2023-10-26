@@ -53,6 +53,7 @@ class FirestoreProvider extends ChangeNotifier {
         .doc(id)
         .get()
         .then((value) {
+      log(value.data().toString());
       user = UserProfile.fromMap(value.data() ?? {});
       status = FirestoreStatus.success;
       notifyListeners();
@@ -378,6 +379,8 @@ class FirestoreProvider extends ChangeNotifier {
       res = false;
       SnackBarService.instance.showSnackBarError(error);
     });
+    status = FirestoreStatus.success;
+    notifyListeners();
     return res;
   }
 
@@ -399,7 +402,7 @@ class FirestoreProvider extends ChangeNotifier {
     list?.sort(
       (a, b) => a.compareTo(b),
     );
-    status = FirestoreStatus.failed;
+    status = FirestoreStatus.success;
     notifyListeners();
     return list;
   }

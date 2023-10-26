@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:alcohol_inventory/screens/profile/inventory_items_view.dart';
+import 'package:alcohol_inventory/services/storage_service.dart';
+import 'package:alcohol_inventory/utils/colors.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,7 +28,8 @@ class _UploadReportState extends State<UploadReport> {
   late AuthProvider _auth;
 
   int selectedIndex = -1;
-  String? selectedName;
+  String? selectedNameColumn;
+  String? selectedQtyColumn;
   List<Data?>? header;
   Set<String?> drinkList = {};
   File? file;
@@ -47,7 +50,7 @@ class _UploadReportState extends State<UploadReport> {
             onPressed: () {
               Navigator.of(context).pushNamed(InventoryItemView.routePath);
             },
-            icon: Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline),
           ),
         ],
       ),
@@ -98,31 +101,62 @@ class _UploadReportState extends State<UploadReport> {
           ),
           Visibility(
             visible: (header?.isNotEmpty ?? false) &&
-                (selectedName?.isEmpty ?? true),
+                (selectedNameColumn?.isEmpty ?? true),
             child: Text(
-                'We have detected ${header?.length ?? 0} columns in your selected sheet. Pick the column for name'),
+                'We have detected ${header?.length ?? 0} columns in your selected sheet. Pick the column for name and quantity'),
           ),
           Visibility(
             visible: (header?.isNotEmpty ?? false) &&
-                (selectedName?.isEmpty ?? true),
+                (selectedNameColumn?.isEmpty ?? true),
             child: verticalGap(defaultPadding / 2),
           ),
           Visibility(
             visible: (header?.isNotEmpty ?? false) &&
-                (selectedName?.isEmpty ?? true),
+                (selectedNameColumn?.isEmpty ?? true),
             child: Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: header?.length ?? 0,
                 itemBuilder: (context, index) {
-                  return RadioListTile(
-                    value: index,
-                    groupValue: selectedIndex,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedIndex = value ?? -1;
-                      });
-                    },
+                  return ListTile(
+                    // value: index,
+                    // groupValue: selectedIndex,
+                    // onChanged: (value) {
+                    //   setState(() {
+                    //     selectedIndex = value ?? -1;
+                    //   });
+                    // },
+                    trailing: PopupMenuButton(
+                      child: const Icon(Icons.add),
+                      itemBuilder: (_) => const <PopupMenuItem<String>>[
+                        PopupMenuItem<String>(
+                            value: 'name', child: Text('Set as Name column')),
+                        PopupMenuItem<String>(
+                            value: 'qty',
+                            child: Text('Set as Quantity column')),
+                      ],
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'name':
+                            selectedIndex = index;
+                            SnackBarService.instance
+                                .showSnackBarInfo('Name column selected');
+                            break;
+                          case 'qty':
+                            selectedQtyColumn =
+                                '${header?.elementAt(index)?.value ?? ''}';
+                            SnackBarService.instance
+                                .showSnackBarInfo('Quantity column selected');
+                            break;
+                        }
+                      },
+                    ),
+
                     title: Text('${header?.elementAt(index)?.value ?? ''}'),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Divider(
+                    color: dividerColor,
                   );
                 },
               ),
@@ -130,18 +164,30 @@ class _UploadReportState extends State<UploadReport> {
           ),
           Visibility(
             visible: (header?.isNotEmpty ?? false) &&
-                (selectedName?.isEmpty ?? true),
+                (selectedNameColumn?.isEmpty ?? true),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: isReadingItem
                     ? null
                     : () async {
+                        selectedNameColumn =
+                            header?.elementAt(selectedIndex)?.value.toString();
+                        if (selectedNameColumn == selectedQtyColumn) {
+                          SnackBarService.instance.showSnackBarError(
+                              'Name and Quantity column cannot be same');
+                          return;
+                        }
+                        if ((selectedNameColumn?.trim().isEmpty ?? true) ||
+                            (selectedQtyColumn?.trim().isEmpty ?? true)) {
+                          SnackBarService.instance.showSnackBarError(
+                              'Name or Quantity column cannot be empty');
+                          return;
+                        }
                         setState(() {
                           isReadingItem = true;
                         });
-                        selectedName =
-                            header?.elementAt(selectedIndex)?.value.toString();
+
                         Uint8List bytes = file!.readAsBytesSync();
                         Excel excel = Excel.decodeBytes(bytes);
                         Sheet sheet = excel.tables.entries.elementAt(0).value;
@@ -163,12 +209,8 @@ class _UploadReportState extends State<UploadReport> {
                         });
                       },
                 child: Text(
-                  isReadingItem
-                      ? 'Please wait...'
-                      : selectedIndex == -1
-                          ? 'Select name column'
-                          : 'Select column ${header?.elementAt(selectedIndex)?.value}',
-                  style: TextStyle(color: Colors.white),
+                  isReadingItem ? 'Please wait...' : 'Next',
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -206,6 +248,14 @@ class _UploadReportState extends State<UploadReport> {
                         if (await _firestore.addInventoryItem(
                                 _auth.user?.uid ?? '', drinkList) ??
                             false) {
+                          String downloadLink =
+                              await StorageService.uploadReportSheet(file!);
+                          await _firestore
+                              .updateUserPartially(_auth.user?.uid ?? '', {
+                            'nameColumn': selectedNameColumn,
+                            'qtyColumn': selectedQtyColumn,
+                            'reportSheet': downloadLink,
+                          });
                           SnackBarService.instance
                               .showSnackBarSuccess('Items save.');
                           Navigator.pop(context);

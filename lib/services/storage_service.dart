@@ -14,4 +14,15 @@ class StorageService {
     SnackBarService.instance.showSnackBarSuccess('Image uploaded');
     return downloadLink;
   }
+
+   static Future<String> uploadReportSheet(
+      File file) async {
+    String path = 'report/${file.path.split(Platform.pathSeparator).last}';
+    final ref = FirebaseStorage.instance.ref().child(path);
+    UploadTask? uploadTask = ref.putFile(file);
+    final snapshot = await uploadTask.whenComplete(() {});
+    final downloadLink = await snapshot.ref.getDownloadURL();
+    SnackBarService.instance.showSnackBarSuccess('Image uploaded');
+    return downloadLink;
+  }
 }
