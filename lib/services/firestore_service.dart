@@ -393,7 +393,8 @@ class FirestoreProvider extends ChangeNotifier {
         .collection(FirestoreCollections.drinkCollection.name)
         .get();
 
-    ;
+    status = FirestoreStatus.success;
+    notifyListeners();
 
     InventoryItemViewModel model =
         InventoryItemViewModel.fromMap(querySnapshot.docs.first.data());

@@ -40,7 +40,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   late FirestoreProvider _firestore;
   late AuthProvider _auth;
   late ApiProvider _api;
-  UpcResponseModel? upcResponse;
+  // UpcResponseModel? upcResponse;
   InventoryModel? inventoryItem;
   bool isItemNewToInventory = false;
 
@@ -105,61 +105,71 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ),
         ),
         verticalGap(defaultPadding),
-        Card(
-          elevation: defaultPadding / 2,
-          child: Row(
-            children: [
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal:
-                            (inventoryItem?.item?.ean?.isNotEmpty ?? false)
-                                ? 0
-                                : defaultPadding),
-                    child: CachedNetworkImage(
-                      imageUrl: getImageUrl(inventoryItem?.item?.images),
-                      placeholder: (context, url) => Image.asset(
-                        'assets/logo/loading.gif',
-                        width: 100,
-                      ),
-                      errorWidget: (context, url, error) => Image.asset(
-                        'assets/images/dummy_bottle.jpeg',
-                        width: 100,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(
-                    0,
-                    defaultPadding,
-                    defaultPadding,
-                    defaultPadding,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      getItemDetailRow(
-                          context, 'UPC', "${inventoryItem?.item?.upc}"),
-                      verticalGap(defaultPadding / 2),
-                      getItemDetailRowWithReadmore(context, 'DESCRIPTION',
-                          "${inventoryItem?.item?.description}"),
-                      verticalGap(defaultPadding / 2),
-                      getItemDetailRow(
-                          context, 'BRAND', "${inventoryItem?.item?.brand}"),
-                      verticalGap(defaultPadding / 2),
-                      getItemDetailRow(
-                          context, 'QUANTITY', "${inventoryItem?.quanty ?? 0}")
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+        // Card(
+        //   elevation: defaultPadding / 2,
+        //   child: Row(
+        //     children: [
+        //       Expanded(
+        //         child: Center(
+        //           child: Padding(
+        //             padding: EdgeInsets.symmetric(
+        //                 horizontal:
+        //                     (inventoryItem?.item?.ean?.isNotEmpty ?? false)
+        //                         ? 0
+        //                         : defaultPadding),
+        //             child: CachedNetworkImage(
+        //               imageUrl: getImageUrl(inventoryItem?.item?.images),
+        //               placeholder: (context, url) => Image.asset(
+        //                 'assets/logo/loading.gif',
+        //                 width: 100,
+        //               ),
+        //               errorWidget: (context, url, error) => Image.asset(
+        //                 'assets/images/dummy_bottle.jpeg',
+        //                 width: 100,
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //       Expanded(
+        //         flex: 2,
+        //         child: Container(
+        //           padding: const EdgeInsets.fromLTRB(
+        //             0,
+        //             defaultPadding,
+        //             defaultPadding,
+        //             defaultPadding,
+        //           ),
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               getItemDetailRow(
+        //                   context, 'UPC', "${inventoryItem?.item?.upc}"),
+        //               verticalGap(defaultPadding / 2),
+        //               getItemDetailRowWithReadmore(context, 'DESCRIPTION',
+        //                   "${inventoryItem?.item?.description}"),
+        //               verticalGap(defaultPadding / 2),
+        //               getItemDetailRow(
+        //                   context, 'BRAND', "${inventoryItem?.item?.brand}"),
+        //               verticalGap(defaultPadding / 2),
+        //               getItemDetailRow(
+        //                   context, 'QUANTITY', "${inventoryItem?.quanty ?? 0}")
+        //             ],
+        //           ),
+        //         ),
+        //       )
+        //     ],
+        //   ),
+        // ),
+        getHorizontalRowItem(
+          context,
+          'UPC code',
+          '${inventoryItem?.item?.upc ?? 0}',
+        ),
+        getHorizontalRowItem(
+          context,
+          'Total',
+          '${inventoryItem?.quanty ?? 0}',
         ),
         verticalGap(
           defaultPadding * 2,
@@ -444,51 +454,28 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   void fetchFromUpc(String barcode) async {
     isItemNewToInventory = false;
-    upcResponse = await _api.getItemByUpc(barcode);
-
-    if (upcResponse != null &&
-        upcResponse?.code == Api.ok &&
-        (upcResponse?.items?.isNotEmpty ?? false)) {
-      // When item present in UPC
-      inventoryItem = await _firestore.getInventoryByUpc(
-          _auth.user?.uid ?? '', upcResponse?.items?.first.upc ?? '');
-      if (inventoryItem != null && inventoryItem?.item != null) {
-        SnackBarService.instance.showSnackBarSuccess(
-            'Item found. Current quantity : ${inventoryItem?.quanty}');
-        isItemNewToInventory = false;
-      } else {
-        SnackBarService.instance
-            .showSnackBarInfo('You are about to load new item');
-        isItemNewToInventory = true;
-        inventoryItem?.updateType = ModificationType.stocked.name;
-      }
-      setState(() {
-        inventoryItem?.item = upcResponse?.items?.first;
-      });
+    inventoryItem =
+        await _firestore.getInventoryByUpc(_auth.user?.uid ?? '', barcode);
+    // upcResponse = await _api.getItemByUpc(barcode);
+    if (inventoryItem != null && inventoryItem?.item != null) {
+      SnackBarService.instance.showSnackBarSuccess(
+          'Item found. Current quantity : ${inventoryItem?.quanty}');
+      isItemNewToInventory = false;
+      _api.status = ApiStatus.success;
     } else {
-      // When item not present in upc
-      inventoryItem =
-          await _firestore.getInventoryByUpc(_auth.user?.uid ?? '', barcode);
-      if (inventoryItem != null && inventoryItem?.item != null) {
-        SnackBarService.instance.showSnackBarSuccess(
-            'Item found. Current quantity : ${inventoryItem?.quanty}');
-        _api.status = ApiStatus.success;
-        isItemNewToInventory = false;
-      } else {
-        SnackBarService.instance
-            .showSnackBarInfo('You are about to load new item');
-        isItemNewToInventory = true;
-        inventoryItem?.updateType = ModificationType.stocked.name;
-        Navigator.pushNamed(context, CustomInventoryScreen.routePath,
-                arguments: barcode)
-            .then((value) {
-          _firestore.status = FirestoreStatus.ideal;
-          _api.status = ApiStatus.ideal;
-          _auth.status = AuthStatus.notAuthenticated;
-        });
-      }
-      setState(() {});
+      SnackBarService.instance
+          .showSnackBarInfo('You are about to load new item');
+      isItemNewToInventory = true;
+      inventoryItem?.updateType = ModificationType.stocked.name;
+      Navigator.pushNamed(context, CustomInventoryScreen.routePath,
+              arguments: barcode)
+          .then((value) {
+        _firestore.status = FirestoreStatus.ideal;
+        _api.status = ApiStatus.ideal;
+        _auth.status = AuthStatus.notAuthenticated;
+      });
     }
+    setState(() {});
   }
 
   getItemDetailRowWithReadmore(BuildContext context, String key, String value) {
