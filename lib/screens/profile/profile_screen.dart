@@ -90,6 +90,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.description_outlined,
     ),
     ProfileMenuItemModel(
+      name: 'Report New',
+      path: '',
+      icon: Icons.description_outlined,
+    ),
+    ProfileMenuItemModel(
       name: 'Upload Report Template',
       path: UploadReport.routePath,
       icon: Icons.upload_file,
@@ -115,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView.separated(
               itemBuilder: (context, index) => ListTile(
                     onTap: () async {
-                      if (index == 6) {
+                      if (index == 7) {
                         _auth
                             .logoutUser()
                             .then((value) => Navigator.pushNamedAndRemoveUntil(
@@ -159,6 +164,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (await Permission.storage.request().isGranted) {
                           ReportGeneratorProvider.instance
                               .generateInventoryReport(_auth.user?.uid ?? '');
+                        } else {
+                          SnackBarService.instance.showSnackBarError(
+                              'Grant storage access to generate and save report');
+                        }
+                      } else if (index == 4) {
+                        if (await Permission.storage.request().isGranted) {
+                          ReportGeneratorProvider.instance
+                              .generateInventoryReportV2(_auth.user?.uid ?? '');
                         } else {
                           SnackBarService.instance.showSnackBarError(
                               'Grant storage access to generate and save report');

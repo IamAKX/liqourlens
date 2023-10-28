@@ -26,10 +26,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_barcode_scanner: ^2.0.0
+  flutter_downloader: ^1.11.4
   flutter_svg: ^2.0.7
   google_fonts: any
   image_picker: ^1.0.1
   intl: ^0.18.1
+  path: ^1.8.3
   path_provider: ^2.0.15
   permission_handler: ^10.4.3
   provider: ^6.0.5
