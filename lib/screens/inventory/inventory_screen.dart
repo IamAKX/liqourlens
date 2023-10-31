@@ -1,3 +1,4 @@
+import 'package:alcohol_inventory/screens/inventory/manual_inventory.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:app_bar_with_search_switch/app_bar_with_search_switch.dart';
 import 'package:flutter/material.dart';
@@ -75,9 +76,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
           title: const Text(
             'Inventory',
           ),
-          actions: const [
-            AppBarSearchButton(
+          actions: [
+            const AppBarSearchButton(
               buttonHasTwoStates: false,
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, ManualInventoryScreen.routePath)
+                    .then((value) => loadScreen());
+              },
+              icon: const Icon(Icons.add),
             )
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:alcohol_inventory/screens/blocked_user/blocked_user.dart';
 import 'package:alcohol_inventory/screens/home/main_container.dart';
 import 'package:alcohol_inventory/screens/inventory/custom_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/history_screen.dart';
+import 'package:alcohol_inventory/screens/inventory/manual_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/product_history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/removed_history_screen.dart';
 import 'package:alcohol_inventory/screens/onboarding/agreement_screen.dart';
@@ -51,6 +52,8 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const UploadReport());
       case BlockedUser.routePath:
         return MaterialPageRoute(builder: (_) => const BlockedUser());
+      case ManualInventoryScreen.routePath:
+        return MaterialPageRoute(builder: (_) => const ManualInventoryScreen());
       case InventoryItemView.routePath:
         return MaterialPageRoute(builder: (_) => const InventoryItemView());
       case CustomInventoryScreen.routePath:
