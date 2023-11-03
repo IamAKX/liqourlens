@@ -104,7 +104,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       padding: const EdgeInsets.all(defaultPadding),
       itemCount: list.length,
       itemBuilder: (context, index) =>
-          InventoryItemCard(inventory: list.elementAt(index)),
+          InventoryItemCard(inventory: list.elementAt(index), reload: loadScreen),
     );
   }
 

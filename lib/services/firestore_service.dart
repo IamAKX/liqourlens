@@ -120,6 +120,7 @@ class FirestoreProvider extends ChangeNotifier {
 
   Future<InventoryModel?> getInventoryByUpc(String userId, String upc) async {
     status = FirestoreStatus.loading;
+    log(' userId : $userId,  upc=$upc ');
     notifyListeners();
     InventoryModel? inventory;
     log('$userId / $upc');

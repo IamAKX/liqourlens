@@ -5,6 +5,7 @@ import 'package:alcohol_inventory/screens/inventory/history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/manual_inventory.dart';
 import 'package:alcohol_inventory/screens/inventory/product_history_screen.dart';
 import 'package:alcohol_inventory/screens/inventory/removed_history_screen.dart';
+import 'package:alcohol_inventory/screens/inventory/update_inventory.dart';
 import 'package:alcohol_inventory/screens/onboarding/agreement_screen.dart';
 import 'package:alcohol_inventory/screens/onboarding/password_recovery.dart';
 import 'package:alcohol_inventory/screens/onboarding/register_screen.dart';
@@ -33,6 +34,11 @@ class NavRoute {
         return MaterialPageRoute(builder: (_) => const HomeContainer());
       case HistoryScreen.routePath:
         return MaterialPageRoute(builder: (_) => const HistoryScreen());
+      case UpdateInventoryScreen.routePath:
+        return MaterialPageRoute(
+            builder: (_) => UpdateInventoryScreen(
+                  barcode: settings.arguments as String,
+                ));
       case ProductHistory.routePath:
         return MaterialPageRoute(
             builder: (_) => ProductHistory(

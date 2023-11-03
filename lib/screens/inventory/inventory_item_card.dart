@@ -1,5 +1,6 @@
 import 'package:alcohol_inventory/models/inventory_model.dart';
 import 'package:alcohol_inventory/screens/inventory/product_history_screen.dart';
+import 'package:alcohol_inventory/screens/inventory/update_inventory.dart';
 import 'package:alcohol_inventory/utils/date_time_formatter.dart';
 import 'package:alcohol_inventory/utils/theme.dart';
 import 'package:alcohol_inventory/widgets/gaps.dart';
@@ -13,9 +14,11 @@ class InventoryItemCard extends StatelessWidget {
   const InventoryItemCard({
     super.key,
     required this.inventory,
+    required this.reload,
   });
 
   final InventoryModel inventory;
+  final Function reload;
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +116,12 @@ class InventoryItemCard extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, ProductHistory.routePath,
-                        arguments: inventory.item?.upc);
+                    // Navigator.pushNamed(context, ProductHistory.routePath,
+                    //     arguments: inventory.item?.upc);
+                    Navigator.pushNamed(
+                            context, UpdateInventoryScreen.routePath,
+                            arguments: inventory.item?.upc)
+                        .then((value) => reload());
                   },
                   icon: const Icon(
                     Icons.chevron_right,
