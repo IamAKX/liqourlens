@@ -1,3 +1,4 @@
+import 'package:alcohol_inventory/screens/inventory/update_item_name.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -93,11 +94,29 @@ class _UpdateInventoryScreenState extends State<UpdateInventoryScreen> {
     return ListView(
       padding: const EdgeInsets.all(defaultPadding),
       children: [
-        Text(
-          '${inventoryItem?.item?.title}',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${inventoryItem?.item?.title}',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(UpdateItemNameScreen.routePath,
+                        arguments: inventoryItem?.item?.upc)
+                    .then((value) => loadScreen());
+              },
+              icon: const Icon(
+                Icons.edit,
+                color: primaryColor,
+              ),
+            )
+          ],
         ),
         verticalGap(defaultPadding),
         getHorizontalRowItem(

@@ -408,4 +408,48 @@ class FirestoreProvider extends ChangeNotifier {
     notifyListeners();
     return list;
   }
+
+  Future<bool?> updateItemName(
+      String userId, String upcCode, String itemName) async {
+    status = FirestoreStatus.loading;
+    notifyListeners();
+    bool res = false;
+    await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.history.name)
+        .where('upc', isEqualTo: upcCode)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.update({'name': itemName});
+      });
+    }).catchError((error) {
+      log('Error on saving | $error');
+      status = FirestoreStatus.failed;
+      notifyListeners();
+      res = false;
+      SnackBarService.instance.showSnackBarError(error);
+    });
+
+    await _db
+        .collection(FirestoreCollections.users.name)
+        .doc(userId)
+        .collection(FirestoreCollections.inventory.name)
+        .doc(upcCode)
+        .get()
+        .then((doc) {
+      doc.reference.update({'item.title': itemName});
+    }).catchError((error) {
+      log('Error on saving | $error');
+      status = FirestoreStatus.failed;
+      notifyListeners();
+      res = false;
+      SnackBarService.instance.showSnackBarError(error);
+    });
+
+    status = FirestoreStatus.success;
+    notifyListeners();
+    return res;
+  }
 }
