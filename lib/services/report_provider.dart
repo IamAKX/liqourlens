@@ -139,7 +139,7 @@ class ReportGeneratorProvider extends ChangeNotifier {
       status = ReportGeneratorStatus.ideal;
       notifyListeners();
       OpenFile.open(fname).then((value) {
-        debugPrint('open res : ${value.message}');
+        SnackBarService.instance.showSnackBarInfo(value.message);
       });
       return true;
     } catch (e) {
@@ -203,14 +203,18 @@ class ReportGeneratorProvider extends ChangeNotifier {
     }
     var fileBytes = excel.save();
 
-    File(p.join(
-        '$filePath/Report_${DateTime.now().toString().replaceAll(':', '').replaceAll(' ', '')}.xlsx'))
+    String fname =
+        '$filePath/Report_${DateTime.now().toString().replaceAll(':', '').replaceAll(' ', '')}.xlsx';
+    File(p.join(fname))
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes!);
     await file.delete();
     SnackBarService.instance.showSnackBarSuccess('Report generated');
     status = ReportGeneratorStatus.ideal;
     notifyListeners();
+    OpenFile.open(fname).then((value) {
+      SnackBarService.instance.showSnackBarInfo(value.message);
+    });
     return true;
   }
 
