@@ -9,6 +9,7 @@ import 'package:alcohol_inventory/utils/date_time_formatter.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
@@ -129,13 +130,17 @@ class ReportGeneratorProvider extends ChangeNotifier {
       // ** End of history **
       log('Saving to $filePath/Report_${DateTime.now()}.xlsx');
       final List<int> bytes = workbook.saveAsStream();
-      File('$filePath/Report_${DateTime.now().toString().replaceAll(':', '').replaceAll(' ', '')}.xlsx')
-          .writeAsBytes(bytes);
+      String fname =
+          '$filePath/Report_${DateTime.now().toString().replaceAll(':', '').replaceAll(' ', '')}.xlsx';
+      File(fname).writeAsBytes(bytes);
 
       workbook.dispose();
       SnackBarService.instance.showSnackBarSuccess('Report generated');
       status = ReportGeneratorStatus.ideal;
       notifyListeners();
+      OpenFile.open(fname).then((value) {
+        debugPrint('open res : ${value.message}');
+      });
       return true;
     } catch (e) {
       status = ReportGeneratorStatus.ideal;
