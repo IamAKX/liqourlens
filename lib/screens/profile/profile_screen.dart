@@ -161,10 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ).show();
                       } else if (index == 3) {
-                        if (await Permission.storage.request().isGranted &&
-                            await Permission.manageExternalStorage
-                                .request()
-                                .isGranted) {
+                        if (await Permission.storage.request().isGranted) {
                           ReportGeneratorProvider.instance
                               .generateInventoryReport(_auth.user?.uid ?? '');
                         } else {
@@ -172,10 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               'Grant storage access to generate and save report');
                         }
                       } else if (index == 4) {
-                        if (await Permission.storage.request().isGranted &&
-                            await Permission.manageExternalStorage
-                                .request()
-                                .isGranted) {
+                        if (await Permission.storage.request().isGranted) {
                           ReportGeneratorProvider.instance
                               .generateInventoryReportV2(_auth.user?.uid ?? '');
                         } else {
